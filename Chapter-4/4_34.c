@@ -6,9 +6,6 @@ int main() {
 	int n;
 	int maxN;
 
-	//puts("Enter decimal number:");
-	//scanf_s("%d", &decimalNum);
-
 	printf_s("%s - %s %s %s\n","Decimal","Double","Octal","Hex");
 	for (int i = 1; i <= 256; i++) {
 		printf("%d - ", i);
