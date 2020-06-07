@@ -1,4 +1,5 @@
 #include <stdio.h>
+//Replace break is switch
 
 int main(void) {
     int a=0, b=0, c=0, grade, inl=0;
