@@ -1,12 +1,13 @@
 #include <stdio.h>
 
-double fibonacci(double);
+int fibonacci(int);
 
- double fibonacci(double n) {
-	double fib = 0;
-	for (double firstNum = 0, secondNum = 1, i = 0 ; ; i++ ) { // ; n != i;
+int fibonacci(int n) {
+	if (n < 2)
+		return n;
+	int fib = 0;
+	for (int firstNum = 0, secondNum = 1, i = 1; n != i ; i++) {
 		fib = firstNum + secondNum;
-		printf("fib is %f ", fib);
 		firstNum = secondNum;
 		secondNum = fib;
 	}
@@ -14,6 +15,6 @@ double fibonacci(double);
 }
 
 int main(void) {
-	printf("Result is %", fibonacci(4));
+	printf("Result is %d", fibonacci(6));
 	return 0;
 }
