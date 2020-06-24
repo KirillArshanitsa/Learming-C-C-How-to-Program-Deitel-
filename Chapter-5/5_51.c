@@ -18,7 +18,7 @@ int main(void)
     int bankBalance = 1000;
     int bet;
 
-    while (bankBalance) {
+    while (bankBalance > 0) {
         do {
             puts("Enter your bet");
             scanf_s("%d", &bet);
