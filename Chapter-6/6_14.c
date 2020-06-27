@@ -2,7 +2,7 @@
 // Survey data analysis with arrays; 
 // computing the mean, median and mode of the data.
 #include <stdio.h>
-#define SIZE 99
+#define SIZE 105
 
 // function prototypes
 void mean(const unsigned int answer[]);
@@ -27,7 +27,7 @@ int main(void)
      5, 6, 7, 2, 5, 3, 9, 4, 6, 4,
      7, 8, 9, 6, 8, 7, 8, 9, 7, 8,
      7, 4, 4, 2, 5, 3, 8, 7, 5, 6,
-     4, 5, 6, 1, 6, 5, 7, 8, 7 };
+     4, 5, 6, 1, 6, 5, 7, 8, 7 ,7,7,7,7};
 
     // process responses
     mean(response);
@@ -109,7 +109,7 @@ void mode(unsigned int freq[], const unsigned int answer[])
 
     // output results
     unsigned int largest = 0; // represents largest frequency
-    unsigned int modeValue[9] = { 0 }; // represents most frequent response
+    //unsigned int modeValue =  0 ; // represents most frequent response
 
     for (size_t rating = 1; rating <= 9; ++rating) {
         printf("%8u%11u          ", rating, freq[rating]);
@@ -117,7 +117,7 @@ void mode(unsigned int freq[], const unsigned int answer[])
         // keep track of mode value and largest frequency value
         if (freq[rating] > largest) {
             largest = freq[rating];
-            modeValue[rating] = rating;
+            //modeValue = rating;
         }
 
         // output histogram bar representing frequency value
@@ -130,13 +130,12 @@ void mode(unsigned int freq[], const unsigned int answer[])
 
     // display the mode value
     printf("\nThe mode is the most frequent value.\n"
-        "For this run the mode is");
+        "For this run the mode is ");
     for (int i = 0; i < 9; i++) {
-        if (modeValue[i] != 0)
-            printf(" %d ", i);
+        if (freq[i] == largest)
+            printf("%d ", i);
     }
-
-    printf("which occurred %u times.\n",  largest);
+    printf("which occurred %u times.\n", largest);
 }
 
 // function that sorts an array with bubble sort algorithm
