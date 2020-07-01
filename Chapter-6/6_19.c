@@ -9,10 +9,12 @@ int throwTwoDice(void) {
 }
 
 int main(void) {
-	int throwResults[13] = {0};
-	int throwsCount = 36000;
 
-	for (int count = 0 ; count < throwsCount; count++) {
+	int throwResults[13] = { 0 }; //[2-12]
+	unsigned int throwsCount =  36000;
+	printf("Throws count %u\n", throwsCount);
+
+	for (int count = 0; count < throwsCount; count++) {
 		++throwResults[throwTwoDice()];
 	}
 	for (int e = 2; e < 13; e++) {
@@ -24,11 +26,12 @@ int main(void) {
 	}
 	puts("");
 	puts("");
-
-	for (int e = 2; e < 13; e++) {
-		//printf("%5.0f ", (double)throwResults[e] / 1000);
-		printf("%5d ", (int)(((double)throwResults[e] / 1000) + 0.5));
+	for (int e = 2, i = 0; e < 13; e++) {
+		if (e < 8)
+			printf("%5s ", ((int)(((double)throwResults[e] / 1000) + 0.5) / (++i) ? "True" : "False"));
+		else
+			printf("%5s ", ((int)(((double)throwResults[e] / 1000) + 0.5) / (--i) ? "True" : "False"));
 	}
-
+	puts("");
 	return 0;
 }
