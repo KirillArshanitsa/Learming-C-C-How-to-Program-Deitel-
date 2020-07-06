@@ -13,7 +13,6 @@ void printArray(int[], int);
 double probabilityOfWinning(int[], int);
 
 void startGane(int successGames[], int failGames[]) {
-
     int myPoint; // player must make this point to win
     enum Status gameStatus; // can contain CONTINUE, WON, or LOST
     int sum = rollDice(); // first roll of the dice
@@ -105,6 +104,7 @@ double probabilityOfWinning(int gamesResult[], int gameCount) {
 
 int main(void)
 {
+    unsigned long int allTime = 0;
     // randomize random number generator using current time
     srand(time(NULL));
     int successGames[21] = { 0 };
@@ -112,9 +112,14 @@ int main(void)
     int gamesCount = 300;
     int check = 0;
 
-    for ( int count = gamesCount; count > 0; count--)
+    for (unsigned int beginTime, finishTime, count = gamesCount; count > 0; count--) {
+        beginTime = time(NULL);
+        printf("%u\n", beginTime);
         startGane(successGames, failGames);
-
+        finishTime = time(NULL);
+        printf("%u\n", finishTime);
+        allTime = allTime + (finishTime - beginTime);
+    }
     puts("\nGames results");
     puts("Game throw:");
     for (int e = 1; e < 22; e++)
@@ -124,7 +129,7 @@ int main(void)
     puts("Fail throws games:");
     printArray(failGames, 21);
     printf("\n\nProbability of winning is %.0f%s\n", probabilityOfWinning(successGames, gamesCount), "%");
-    //printf("Average game duration is %d\n\n");
+    printf("Average game duration is %.3f sec\n\n", (double)allTime / 1000);
     return 0;
      
 }
