@@ -6,77 +6,33 @@ int go(int[][8], int, int, int, int, int);
 void printBoard(int board[][8]) {
 	for (int e = 0; e < 8; e++) {
 		for (int i = 0; i < 8; i++) {
-			printf("%d", board[e][i]);
+			printf("%4d", board[e][i]);
 		}
 		puts("");
 	}
 }
+
 int go(int board[][8], int currentColumn, int currentRow, int horizontal, int vertical, int count) {
+	currentRow = currentRow + vertical; //currentRow - (-vertical)
+	currentColumn = currentColumn + horizontal; //currentColumn - (-horizontal)
 
-	if (! (((currentRow + vertical) >= 0) && ((currentRow + vertical) < 8)) ) //currentRow - (-vertical) >= 0
+	if (! ((currentRow >= 0) && (currentRow < 8))) 
 		return 0;
-	if (! (((currentColumn + horizontal) >= 0) && ((currentColumn + horizontal) < 8)) ) //currentColumn - (-horizontal) >= 0
+	if (! ((currentColumn >= 0) && (currentColumn < 8))) 
 		return 0;
 
-
-	if (vertical < 0) {
-		for (int e = vertical, mCurrentRow = currentRow; e; e++) {
-			if (board[--mCurrentRow][currentColumn] != 0)
-				return 0;
-		}
+	//printf("localCurrentRow = %d, localurrentColumn = %d\n", currentRow, currentColumn);
+	if (board[currentRow][currentColumn] == 0) {
+		board[currentRow][currentColumn] = count;
+		return 1;
 	}
-	else {
-		for (int e = vertical, mCurrentRow = currentRow; e; e--) {
-			if (board[++mCurrentRow][currentColumn] != 0)
-				return 0;
-		}
-	}
-
-	if (horizontal < 0) {
-		for (int e = horizontal, mCurrentColumn = currentColumn; e; e++) {
-			if (board[currentRow][--mCurrentColumn] != 0)
-				return 0;
-		}
-	}
-	else {
-		for (int e = horizontal, mCurrentColumn = currentColumn; e; e--) {
-			if ((board[currentRow][++mCurrentColumn ]) != 0) {
-				return 0;
-			}
-		}
-	}
-
-	//board[currentRow][currentColumn] = 9;
-
-	if (vertical < 0) {
-		while (vertical++) {//(-vertical) -1
-			board[--currentRow][currentColumn] = count;
-		}
-	}
-	else {
-		while (vertical--) {
-			board[++currentRow][currentColumn] = count;
-		}
-	}
-
-	if (horizontal < 0) {
-		while (horizontal++) {//(-horizontal) -1
-			board[currentRow][--currentColumn] = count;
-		}
-	}
-	else {
-		while (horizontal--) {
-			board[currentRow][++currentColumn] = count;
-		}
-	}
-	printf("localCurrentRow = %d, localurrentColumn = %d\n", currentRow, currentColumn);
-	return 1;
+	else
+		return 0;
 
 }
 
 
 int main(void) {
-	//horizont left and vertical hight = -
 	int board[8][8] = { 0 };
 	int horizontal[8] = { 0 };
 	int vertical[8] = { 0 };
@@ -99,20 +55,26 @@ int main(void) {
 	vertical[7] = 1;
 
 	int currentRow = 3;
-	int currentColumn = 3;
+	int currentColumn = 4;
+	//Debug
+	board[currentRow][currentColumn] = 65;
 	//int moveNumber = 6;
 	//int count = go(board, currentColumn, currentRow, horizontal[moveNumber], vertical[moveNumber], moveNumber);
 	int count;
 	for (count = 1; count <= 64; count++) {
-		for (int moveNumber = 0; moveNumber < 8; moveNumber++) {
+		int goResult = 0;
+		for (int moveNumber = 0; moveNumber <= 7; moveNumber++) {
 			if (go(board, currentColumn, currentRow, horizontal[moveNumber], vertical[moveNumber], count)) {
-				currentColumn += vertical[moveNumber];
-				currentRow += horizontal[moveNumber];
+				currentRow += vertical[moveNumber];
+				currentColumn += horizontal[moveNumber];
+				goResult = 1;
 				break;
 			}
 		}
+		if (goResult == 0)
+			break;
 	}
 	printBoard(board);
-	printf("\n\ncurrentRow = %d, currentColumn = %d, count = %d", currentRow, currentColumn, count);
+	printf("\n\ncurrentRow = %d, currentColumn = %d, count = %d", currentRow, currentColumn, count - 1);
 	return 0;
 }
