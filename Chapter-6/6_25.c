@@ -66,9 +66,10 @@ int main(void) {
     // check success step
     int checkCurrentStep;
     int randomMoveNum;
+    unsigned int allCount;
     srand(time(NULL));
 
-    for (unsigned int i = 0; i < 10000; i++) {
+    for (allCount = 0; allCount < 10000000; allCount++) {
 
         succStepCount = 0;
         currentRow = 0;
@@ -102,18 +103,18 @@ int main(void) {
         if (maxsuccStepCount < succStepCount) {
             maxsuccStepCount = succStepCount;
             printBoard(board);
-            printf("\nsuccStepCount = %d, currentRow = %d currentColumn = %d\n", succStepCount, currentRow, currentColumn);
+            printf("\nsuccStepCount = %d, currentRow = %d currentColumn = %d allCount = %u\n", succStepCount, currentRow, currentColumn, allCount);
         }
 
         if (succStepCount >= 63) {
             puts("\n\n\nSuccess !!\n");
             printBoard(board);
-            printf("\nsuccStepCount = %d, currentRow = %d currentColumn = %d\n", succStepCount, currentRow, currentColumn);
+            printf("\nsuccStepCount = %d, currentRow = %d currentColumn = %d allCount = %u\n", succStepCount, currentRow, currentColumn, allCount);
             break;
         }
     }
-    puts("\n\Finish!");
-    printf("maxsuccStepCount = %d\n\n", maxsuccStepCount);
+    puts("\n\nFinish!");
+    printf("maxsuccStepCount = %d allCount = %u\n", maxsuccStepCount, allCount);
     return 0;
     //Max success count = 63
 }
