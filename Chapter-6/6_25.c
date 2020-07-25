@@ -36,16 +36,15 @@ int checkStep(int board[][8], int currentColumn, int currentRow, int horizontal,
 }
 
 int main(void) {
-    srand(time(NULL));
-    //int board[8][8] = { 0 };
-    int currentRow = 0;
-    int currentColumn = 0;
-    //board[currentRow][currentColumn] = 65; // for debug begin position
-    int succStepCount = 1;
 
+    int currentRow;
+    int currentColumn;
+    int succStepCount = 0;
+    int board[8][8] = { 0 };
+
+    //Copy from book all possible position
     int horizontal[8] = { 0 };
     int vertical[8] = { 0 };
-
     horizontal[0] = 2;
     horizontal[1] = 1;
     horizontal[2] = -1;
@@ -63,31 +62,51 @@ int main(void) {
     vertical[6] = 2;
     vertical[7] = 1;
 
-    int randomNum;
     int maxsuccStepCount = 0;
-    for (unsigned int i = 0; i < 10000; i++) {
-        succStepCount = 0;
-        int board[8][8] = { 0 };
-        currentRow = 1;
-        currentColumn = 1;
-        board[currentRow][currentColumn] = 65; // for debug begin position
+    // check success step
+    int checkCurrentStep;
+    int randomMoveNum;
+    srand(time(NULL));
 
-        for (int stepCount = 1; stepCount <= 64; stepCount++) {
-            randomNum = rand() % 8;
-            if (checkStep(board, currentColumn, currentRow, horizontal[randomNum], vertical[randomNum], succStepCount)) {
-                ++succStepCount;
-                currentRow += vertical[randomNum];
-                currentColumn += horizontal[randomNum];
+    for (unsigned int i = 0; i < 10000; i++) {
+
+        succStepCount = 0;
+        currentRow = 0;
+        currentColumn = 0;
+
+        // clear borad
+        for (int e = 0; e < 8; e++) {
+            for (int i = 0; i < 8; i++) {
+                board[e][i] = 0;
             }
         }
+        board[currentRow][currentColumn] = 65; // for debug begin position
+        //all steps in board 8*8=64
+        for (int stepCount = 1; stepCount <= 64; stepCount++) {
+            checkCurrentStep = 0;
+            for (int moveNum = 0; moveNum < 64; moveNum++) {
+                //generate random val for horizontal and vertical step
+                randomMoveNum = rand() % 8;
+                if (checkStep(board, currentColumn, currentRow, horizontal[randomMoveNum], vertical[randomMoveNum], stepCount)) {
+                    ++succStepCount;
+                    currentRow += vertical[randomMoveNum];
+                    currentColumn += horizontal[randomMoveNum];
+                    checkCurrentStep = 1;
+                    break;
+                }
+            }
+            if (checkCurrentStep == 0)
+                break;
+        }
+
         if (maxsuccStepCount < succStepCount) {
             maxsuccStepCount = succStepCount;
             printBoard(board);
             printf("\nsuccStepCount = %d, currentRow = %d currentColumn = %d\n", succStepCount, currentRow, currentColumn);
         }
 
-        if (succStepCount >= 64) {
-            puts("\n\n\nSuccess!!");
+        if (succStepCount >= 63) {
+            puts("\n\n\nSuccess !!\n");
             printBoard(board);
             printf("\nsuccStepCount = %d, currentRow = %d currentColumn = %d\n", succStepCount, currentRow, currentColumn);
             break;
@@ -96,4 +115,5 @@ int main(void) {
     puts("\n\Finish!");
     printf("maxsuccStepCount = %d\n\n", maxsuccStepCount);
     return 0;
+    //Max success count = 63
 }
