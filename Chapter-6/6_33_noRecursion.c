@@ -12,10 +12,13 @@ int testPalindrome(char String[]) {
             ++left;
         if (String[right] == ' ' || String[right] == ',' || String[right] == '.')
             --right;
-        if (String[left] != String[right]) {
-            printf("String[left] = %c left = %d String[right] = %c right =%d\n", String[left], left, String[right], right);
-            return 0;
+        if ((String[left] == String[right]) || (String[left] + 32 == String[right]) || (String[left] == String[right] + 32)) {
+            continue;
         }
+
+        printf("String[left] = %c left = %d String[right] = %c right =%d\n", String[left], left, String[right], right);
+        return 0;
+        
     }
     return 1;
 
