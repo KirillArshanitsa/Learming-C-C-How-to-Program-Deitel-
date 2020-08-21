@@ -25,13 +25,14 @@ int main(void)
 {
     // initialize deck array
     unsigned int deck[SUITS][FACES] = { 0 };
+    unsigned int deck2[SUITS][FACES] = { 0 };
     int firstGamerCards[COUNTCARDS][2];
     int secondGamerCards[COUNTCARDS][2];
     int(*checkCards[COUNTCHECK])(int[][2]) = { haveOnePair, haveTwoPairs, haveThreePairs, haveCare, haveFlush, haveStraight};
     int firstGamerResults[COUNTCARDS];
     int secondGamerResults[COUNTCARDS];
 
-    //srand(time(NULL)); // seed random-number generator
+    srand(time(NULL)); // seed random-number generator
 
     shuffle(deck); // shuffle the deck
 
@@ -43,9 +44,10 @@ int main(void)
     { "Ace", "Deuce", "Three", "Four",
       "Five", "Six", "Seven", "Eight",
       "Nine", "Ten", "Jack", "Queen", "King" };
-
     deal(deck, face, suit, firstGamerCards);
-    deal(deck, face, suit, secondGamerCards);
+
+    shuffle(deck2);
+    deal(deck2, face, suit, secondGamerCards);
 
     parseDeal(firstGamerCards, checkCards, firstGamerResults);
     parseDeal(secondGamerCards, checkCards, secondGamerResults);
