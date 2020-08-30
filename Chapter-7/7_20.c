@@ -1,82 +1,125 @@
-// Fig. 7.24: fig07_24.c
-// Card shuffling and dealing.
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#define SIZE 100
 
-#define SUITS 4
-#define FACES 13
-#define CARDS 52
+unsigned int accumulator;
+unsigned int instructionCounter;
+unsigned int instructionRegister;
+unsigned int operationCode;
+unsigned int operand;
 
-// prototypes
-void shuffleAndDeal(unsigned int wDeck[][FACES], const char *wFace[],
-             const char *wSuit[]);
-void deal(unsigned int wDeck[][FACES], const char *wFace[],
-          const char *wSuit[]); // dealing doesn't modify the arrays
+void printDump(const int[], const int);
+unsigned int loadCommands(int [], const int);
+void clearMemory(int[], const int);
+void runCommands(const int[], const int);
 
-int main(void)
-{
-    // initialize deck array
-    unsigned int deck[SUITS][FACES] = { 0 };
-
-    srand(time(NULL)); // seed random-number generator
-
-
-    // initialize suit array
-    const char *suit[SUITS] =
-            {"Hearts", "Diamonds", "Clubs", "Spades"};
-
-    // initialize face array
-    const char *face[FACES] =
-            {"Ace", "Deuce", "Three", "Four",
-             "Five", "Six", "Seven", "Eight",
-             "Nine", "Ten", "Jack", "Queen", "King"};
-
-    shuffleAndDeal(deck, face, suit); // shuffle the deck
-    //deal(deck, face, suit); // deal the deck
+void runCommands(int memory[], const unsigned int final) {
+	for (instructionCounter = 0; instructionCounter < final; instructionCounter++) {
+		instructionRegister = memory[instructionCounter];
+		operationCode = instructionRegister / 100;
+		operand = instructionRegister % 100;
+		switch (operationCode){
+			case 10:
+				puts("Enter number:");
+				scanf_s("%d", &memory[operand]);
+				break;
+			case 11:
+				printf("%d", memory[operand]);
+				break;
+			case 20:
+				accumulator = memory[operand];
+				break;
+			case 21:
+				memory[operand] = accumulator;
+				break;
+			case 30:
+				accumulator += memory[operand];
+				break;
+			case 31:
+				accumulator -= memory[operand];
+				break;
+			case 32:
+				accumulator /= memory[operand];
+				break;
+			case 33:
+				accumulator *= memory[operand];
+				break;
+			case 40:
+				instructionCounter = operand;
+				break;
+			case 41:
+				if(accumulator < 0)
+					instructionCounter = operand;
+				break;
+			case 42:
+				if (accumulator == 0)
+					instructionCounter = operand;
+				break;
+			case 43:
+				return;
+			default:
+				printf("Not corrcet command %d\n", operationCode);
+				break;
+		}
+	}
 }
 
-// shuffle cards in deck
-void shuffleAndDeal(unsigned int wDeck[][FACES], const char *wFace[],
-             const char *wSuit[])
-{
-    // for each of the cards, choose slot of deck randomly
-    for (size_t card = 1; card <= CARDS; ++card) {
-        size_t row; // row number
-        size_t column; // column number
-
-        // choose new random location until unoccupied slot found
-        do {
-            row = rand() % SUITS;
-            column = rand() % FACES;
-        } while(wDeck[row][column] != 0); // end do...while
-
-        // place card number in chosen slot of deck
-        wDeck[row][column] = card;
-        printf("%5s of %-8s%c", wFace[column], wSuit[row],
-               card % 2 == 0 ? '\n' : '\t'); //
-    }
+void clearMemory(int memory[], const int size) {
+	for (int i = 0; i < size; i++)
+		memory[i] = 0;
 }
 
-// deal cards in deck
-void deal(unsigned int wDeck[][FACES], const char *wFace[],
-          const char *wSuit[])
-{
-    // deal each of the cards
-    for (size_t card = 1; card <= CARDS; ++card) {
-        // loop through rows of wDeck
-        for (size_t row = 0; row < SUITS; ++row) {
-            // loop through columns of wDeck for current row
-            for (size_t column = 0; column < FACES; ++column) {
-                // if slot contains current card, display card
-                if (wDeck[row][column] == card) {
-                    printf("%5s of %-8s%c", wFace[column], wSuit[row],
-                           card % 2 == 0 ? '\n' : '\t'); // 2-column format
-                }
-            }
-        }
-    }
+unsigned int loadCommands(int memory [], const int size) {
+	printf("*** Start load commands ***\n");
+	for (int i = 0; i < size; i++) {
+		do {
+			i < 10 ? printf("0%d? ", i) : printf("%d? ", i);
+			scanf_s("%d", &memory[i]);
+			if (memory[i] == -99999) {
+				puts("Enter finished");
+				return i;
+			}
+		} while ((memory[i] > 9999) || (memory[i] < -9999));
+	}
+	printf("*** Finish load commands ***\n***Starting begin your programm***\n");
 }
 
+void printDump(const int memory[], const int size) {
+	puts("\n\nPrint memory dump");
+	puts("REGISTRY:");
+	printf("%-22s%d\n", "accumulator", accumulator);
+	printf("%-22s%d\n", "instructionCounter", instructionCounter);
+	printf("%-22s%d\n", "instructionRegister", instructionRegister);
+	printf("%-22s%d\n", "operationCode", operationCode);
+	printf("%-22s%d\n", "operand", operand);
+	puts("\n\nMEMORY:");
+	for (int i = 0; i < 10; i++)
+		printf("%8d", i);
+	for (int i = 0; i < size; i++) {
+		if (i % 10 == 0) {
+			printf("\n%2d", i);
+			if (memory[i] > 0)
+				printf("%-2s%4d", "+", memory[i]);
+			else if (memory[i] == 0)
+				printf("%2s0000", "+");
+			else
+				printf("%6d", memory[i]);
+		}
+		else {
+			if (memory[i] > 0)
+				printf("%3s%s%4d", " ","+", memory[i]);
+			else if (memory[i] == 0)
+				printf("%3s%s0000", " ","+");
+			else
+				printf("%8d", memory[i]);
+		}
+	}
+}
 
+int main(void) {
+	int memory[SIZE] = {0};
+	runCommands(memory, loadCommands(memory, SIZE));
+	//clearMemory(memory, SIZE);
+	printDump(memory, SIZE);
 
+	return 0;
+}
