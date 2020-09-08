@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define SIZE 100
+#define SIZE 1000
 
 unsigned int accumulator;
 unsigned int instructionCounter;
@@ -31,6 +31,9 @@ void runCommands(int memory[], const unsigned int final) {
 		case 21:
 			memory[operand] = accumulator;
 			break;
+		case 22:
+			memory[operand] < 0 ? accumulator = (memory[operand] * -1) : accumulator = memory[operand];
+			break;
 		case 30:
 			accumulator += memory[operand];
 			break;
@@ -48,6 +51,21 @@ void runCommands(int memory[], const unsigned int final) {
 			break;
 		case 33:
 			accumulator *= memory[operand];
+			break;
+		case 34:
+			if (memory[operand] > 0) {
+				while (memory[operand]-- > 0)
+					accumulator *= accumulator;
+			}
+			else if (memory[operand] == 0)
+				accumulator = 0;
+			else {
+				//TODO fix 1/int
+				while (memory[operand]++ < 0)
+					accumulator *= accumulator;
+				printf("!!! accumulator = %d\n", 1.0 / accumulator);
+				accumulator = 1 / accumulator;
+			}
 			break;
 		case 40:
 			instructionCounter = operand;
