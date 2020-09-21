@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 #define SIZE 1000
-#define NUMBER_COMMAND_COUNT 5
-#define COMMAND_BLOCK_SIZE 2
+#define COUNT_NUM_MACHINEWORD 5
 
 unsigned int accumulator;
 unsigned int instructionCounter;
@@ -10,15 +8,15 @@ unsigned int instructionRegister;
 unsigned int operationCode;
 unsigned int operand;
 
-void printDump(const int[]);
-unsigned int loadCommands(int[]);
-void clearMemory(int[]);
+void printDump(const int[], const int);
+unsigned int loadCommands(int[], const int);
+unsigned int loadCommandsHex(int[], const int);
+void clearMemory(int[], const int);
 void runCommands(const int[], const int);
-int hexCharToInt(const char[], int);
-int charsToInt(const char[], const int, const int);
+int hexCharsToInt(const char[], const int, const int);
 
 
-int charsToInt(const char symbols[], const int begin, const int finish) {
+int hexCharsToInt(const char symbols[], const int begin, const int finish) {
 	int result = 0;
 	int number = 0;
 	int check;
@@ -54,50 +52,15 @@ int charsToInt(const char symbols[], const int begin, const int finish) {
 			}
 		}
 		if ((check) || (number == -1)) {
-			printf("Error in %d %c\n", e, symbols[e]);
+			printf("Error in %d %c %s\n", e, symbols[e], symbols);
 			return -1;
 		}
 		result += extent * number;
-		printf("result %d extent %d number %d\n", result, extent, number);
+		//printf("result %d extent %d number %d\n", result, extent, number);
 	}
-	puts("Finish");
 	return result;
 }
 
-
-int hexCharToInt(const char list[], int size) {
-	int result = 0;
-	int multiplier = 1;
-	int partCommad;
-	int partAdress;
-	int addresMaxCount = 1;
-	int commandMaxCount = 1;
-
-	for (int e = NUMBER_COMMAND_COUNT - COMMAND_BLOCK_SIZE; e > 0; e--)
-		addresMaxCount *= 10;
-	for (int e = COMMAND_BLOCK_SIZE; e > 0; e--)
-		commandMaxCount *= 10;
-	for (int e = size; e > size - COMMAND_BLOCK_SIZE; e--)
-		multiplier *= 10;
-
-	//printf("multiplier %d\n", multiplier);
-	partCommad = charsToInt(list, 0, COMMAND_BLOCK_SIZE);
-	//printf("partCommad %d\n", partCommad);
-	partAdress = charsToInt(list, COMMAND_BLOCK_SIZE, size);
-	//printf("partAdress %d\n", partAdress);
-
-	if (partAdress / addresMaxCount > 0) {
-		printf("Error you enter %d max coun num for adress is %d\n", partAdress, NUMBER_COMMAND_COUNT - COMMAND_BLOCK_SIZE);
-		return -1;
-	}
-	if (partCommad / commandMaxCount > 0) {
-		printf("Error you enter %d max coun num for command is %d\n", partAdress, partCommad - COMMAND_BLOCK_SIZE);
-		return -1;
-	}
-	result = partCommad * multiplier + partAdress;
-	//printf("result %d\n", result);
-	return result;
-}
 
 void runCommands(int memory[], const unsigned int final) {
 	for (instructionCounter = 0; instructionCounter < final; instructionCounter++) {
@@ -111,6 +74,9 @@ void runCommands(int memory[], const unsigned int final) {
 			break;
 		case 11:
 			printf("%d", memory[operand]);
+			break;
+		case 12:
+			puts("");
 			break;
 		case 20:
 			accumulator = memory[operand];
@@ -130,7 +96,7 @@ void runCommands(int memory[], const unsigned int final) {
 		case 32:
 			if (memory[operand] == 0) {
 				puts("Error / 0");
-				printDump(memory);
+				printDump(memory, SIZE);
 				return;
 			}
 			else
@@ -174,59 +140,79 @@ void runCommands(int memory[], const unsigned int final) {
 	}
 }
 
-void clearMemory(int memory[]) {
-	for (int i = 0; i < SIZE; i++)
+void clearMemory(int memory[], const int size) {
+	for (int i = 0; i < size; i++)
 		memory[i] = 0;
 }
 
-unsigned int loadCommands(int memory[]) {
-	// +2 - 1 \0 -2 - 
-	char inputVal[NUMBER_COMMAND_COUNT + 2];
-	int inputSize;
-	char breakVal[] = "-99999";
+unsigned int loadCommands(int memory[], const int size) {
 	puts("*** Start load commands ***");
-	printf("*** Enter %s for finish ***\n", breakVal);
-	for (int i = 0; i < SIZE; i++) {
+	puts("*** Enter -99999 for finish ***");
+	for (int i = 0; i < size; i++) {
 		do {
-			inputSize = 0;
-			for (int i = 0; i < NUMBER_COMMAND_COUNT + 2; i++)
-				inputVal[i] = 0;
-
 			i < 10 ? printf("0%d? ", i) : printf("%d? ", i);
-			scanf("%s", inputVal);
-			printf("You enter %s\n", inputVal);
-
-			//TODO check all char to hex symbol
-			if (inputVal[0] == 45)  {
-				for (int i = 1; i <= NUMBER_COMMAND_COUNT; i++) {
-					if (inputVal[i] != breakVal[i]) {
-						printf("You enter negative number %s\n", inputVal);
-						continue;
-					}
-				}
-				puts("Enter finished -99999");
+			scanf_s("%d", &memory[i]);
+			if (memory[i] == -99999) {
+				puts("Enter finished");
 				return i;
 			}
-
-			for (int e = 0; inputVal[e] != '\0'; e++) {
-				inputSize++;
-			}
-			if (inputSize > NUMBER_COMMAND_COUNT + 1 ) {
-				printf("You enter %d, max count is %d with negative num\n", inputSize, NUMBER_COMMAND_COUNT + 1);
-				continue;
-			}
-			memory[i] = hexCharToInt(inputVal, inputSize);
-
-			//if (memory[i] == -99999) {//1869F
-			//	puts("Enter finished");
-			//	return i;
-			//}
 		} while ((memory[i] > 99999) || (memory[i] < -99999));
 	}
 	printf("*** Finish load commands ***\n***Starting begin your programm***\n");
 }
 
-void printDump(const int memory[]) {
+
+unsigned int loadCommandsHex(int memory[], const int size) {
+	puts("*** Start load commands ***");
+	puts("*** Enter -1869F for finish ***");
+	// +2 1 \0 2 -
+	char machineWord[COUNT_NUM_MACHINEWORD + 2];
+
+	for (int i = 0, machineWordSize, machineWordBeginElem, intMachineWord; i < size; i++) {
+		do {
+			intMachineWord = -100000;
+			for (int e = 0; e < COUNT_NUM_MACHINEWORD + 2; e++)
+				machineWord[e] = 0;
+
+			i < 10 ? printf("0%d? ", i) : printf("%d? ", i);
+			scanf("%s", machineWord);
+
+			for (machineWordSize = 0; machineWord[machineWordSize] != '\0'; machineWordSize++);
+			if (machineWord[0] == 45) {
+				machineWordBeginElem = 1;
+				if (machineWordSize > COUNT_NUM_MACHINEWORD + 1) {
+					printf("You enter %d symbols, max command size is %d without -", machineWordSize, COUNT_NUM_MACHINEWORD + 1);
+					continue;
+				}
+			}
+			else {
+				machineWordBeginElem = 0;
+				if (machineWordSize > COUNT_NUM_MACHINEWORD + 2) {
+					printf("You enter %d symbols, max command size is %d", machineWordSize, COUNT_NUM_MACHINEWORD + 2);
+					continue;
+				}
+			}
+			intMachineWord = hexCharsToInt(machineWord, machineWordBeginElem, machineWordSize);
+			//check
+			if (intMachineWord == -100000) {
+				printf("Error convert %s\n", machineWord);
+				continue;
+			}
+			// if negative num entered
+			if (machineWordBeginElem)
+				intMachineWord *= -1;
+
+			memory[i] = intMachineWord;
+			if (memory[i] == -99999) {
+				puts("Enter finished");
+				return i;
+			}
+		} while ((memory[i] > 99999) || (memory[i] < -99999));
+	}
+	printf("*** Finish load commands ***\n***Starting begin your programm***\n");
+}
+
+void printDump(const int memory[], const int size) {
 	puts("\n\nPrint memory dump");
 	puts("REGISTRY:");
 	printf("%-22s%d\n", "accumulator", accumulator);
@@ -237,9 +223,9 @@ void printDump(const int memory[]) {
 	puts("\n\nMEMORY:");
 	for (int i = 0; i < 10; i++)
 		printf("%8d", i);
-	for (int i = 0; i < SIZE; i++) {
+	for (int i = 0; i < size; i++) {
 		if (i % 10 == 0) {
-			printf("\n%2d", i);
+			printf("\n%3d", i);
 			if (memory[i] > 0)
 				printf("%-2s%4d", "+", memory[i]);
 			else if (memory[i] == 0)
@@ -256,13 +242,15 @@ void printDump(const int memory[]) {
 				printf("%8d", memory[i]);
 		}
 	}
-	puts("");
+	puts("\n");
 }
 
 int main(void) {
 	int memory[SIZE] = { 0 };
-	runCommands(memory, loadCommands(memory));
+	//runCommands(memory, loadCommands(memory, SIZE));
+	//runCommands(memory, loadCommandsHex(memory, SIZE));
 	//clearMemory(memory, SIZE);
-	printDump(memory);
+	printDump(memory, SIZE);
+
 	return 0;
 }
