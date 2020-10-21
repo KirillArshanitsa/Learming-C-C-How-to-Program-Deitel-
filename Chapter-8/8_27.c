@@ -11,26 +11,32 @@ long int atol(const char*);
 double strtod(const char*, const char **);
 long strtol(const char *, const char **, int);
 int checkStrIsDigit(const char*);
-long numeralTranslation(const char*, const int scaleOfNotation);
+long numeralTranslation(const char*, const int);
+
 
 int main(void) {
     const char *strPtr = NULL;
-    const char* strStrtolPtr = NULL;
+    const char *strStrtolPtr = NULL;
 
-    printf("%f\n", atof("-1234.123"));
-    printf("%d\n", atoi("1230123"));
-    printf("%ld\n", atol("-1000000010"));
-    printf("%f %s\n", strtod("12.1234 are ammitted.", &strPtr), strPtr);
-
-    printf("%ld %s\n", strtol(" f5 _are ammitted.", &strStrtolPtr, 16), strStrtolPtr);
-
+    //printf("%f\n", atof("-1234.123"));
+    //printf("%d\n", atoi("1230123"));
+    //printf("%ld\n", atol("-1000000010"));
+    //printf("%f\t%s\n", strtod("12.1234 are ammitted.", &strPtr), strPtr);
+    //printf("%ld\t%s\n", strtol(" 571 _are ammitted.", &strStrtolPtr, 16), strStrtolPtr);
+    printf("%ld\n", numeralTranslation("7647", 16));
     return 0;
 }
+
 
 long numeralTranslation(const char* nPtr, const int scaleOfNotation) {
     //TODO add check for scaleOfNotation 
     long result = 0;
+    long digitFromnPtr;
+    long decimalCountnPtr = 1;
     size_t strSize = strlen(nPtr);
+    char contiansAlpha = 0;
+    long remainderDivision;
+    long multiplier = 1;
 
     if (strSize == 0) {
         printf("You enter empty string.\n");
@@ -42,41 +48,71 @@ long numeralTranslation(const char* nPtr, const int scaleOfNotation) {
         return -1;
     }
 
-    for (size_t elemInStr = 0; nPtr[elemInStr] != '\0' ; elemInStr++) {
-        if ((nPtr[elemInStr] >= 48) && (nPtr[elemInStr] <= 57)) {
-            for (int i = 48, e = 0; i <= 57; i++, e++) {
-                if (nPtr[elemInStr] == i) {
-                    result += e * pow(scaleOfNotation, strSize--);
-                    break;
-                }
-            }
-        }
-        else if ((nPtr[elemInStr] >= 65) && (nPtr[elemInStr] <= 90)) {
-            for (int i = 65, e = 10; i <= 90; i++, e++) {
-                if (nPtr[elemInStr] == i) {
-                    result += e * pow(scaleOfNotation, strSize--);
-                    break;
-                }
-            }
-        }
-        else if ((nPtr[elemInStr] >= 97) && (nPtr[elemInStr] <= 122)) {
-            for (int i = 97, e = 10; i <= 122; i++, e++) {
-                if (nPtr[elemInStr] == i) {
-                    result += e * pow(scaleOfNotation, strSize--);
-                    break;
-                }
-            }
-        }
+    for (size_t e = 0; nPtr[e] != '\0'; e++) {
+        if (isalpha(nPtr[e]))
+            contiansAlpha = 1;
+        else if (isdigit(nPtr[e]))
+            ;
         else {
-            printf("Error translate char %c num %d in str %s.", nPtr[elemInStr], elemInStr, nPtr);
+            printf("Finded non alpha/digit symbol %c in %s\n", nPtr[e] , scaleOfNotation);
             return -1;
         }
-        
+
     }
+
+    //translate 
+    if ((scaleOfNotation > 9)) {
+        for (size_t elemInStr = 0; nPtr[elemInStr] != '\0'; elemInStr++) {
+            if ((nPtr[elemInStr] >= 48) && (nPtr[elemInStr] <= 57)) {
+                for (int i = 48, e = 0; i <= 57; i++, e++) {
+                    if (nPtr[elemInStr] == i) {
+                        result += e * pow(scaleOfNotation, strSize--);
+                        break;
+                    }
+                }
+            }
+            else if ((nPtr[elemInStr] >= 65) && (nPtr[elemInStr] <= 90)) {
+                for (int i = 65, e = 10; i <= 90; i++, e++) {
+                    if (nPtr[elemInStr] == i) {
+                        result += e * pow(scaleOfNotation, strSize--);
+                        break;
+                    }
+                }
+            }
+            else if ((nPtr[elemInStr] >= 97) && (nPtr[elemInStr] <= 122)) {
+                for (int i = 97, e = 10; i <= 122; i++, e++) {
+                    if (nPtr[elemInStr] == i) {
+                        result += e * pow(scaleOfNotation, strSize--);
+                        break;
+                    }
+                }
+            }
+            else {
+                printf("Error translate char %c num %d in str %s.", nPtr[elemInStr], elemInStr, nPtr);
+                return -1;
+            }
+        }
+    }
+    else if(contiansAlpha == 0) {
+        while (strSize--) {
+            decimalCountnPtr *= 10;
+        }
+        sscanf_s(nPtr, "%ld", &digitFromnPtr);
+        printf("%ld\n", digitFromnPtr);
+        while ((remainderDivision = digitFromnPtr / scaleOfNotation) >= scaleOfNotation - 1) {
+            result += (digitFromnPtr % scaleOfNotation) * multiplier;
+            digitFromnPtr = remainderDivision;
+            //decimalCountnPtr /= 10;
+            multiplier *= 10;
+        }
+        result += remainderDivision * (decimalCountnPtr * 10);
+    }
+
+
     return result;
 }
 
-long strtol(const char* nPtr, const char** endPtr, int base) {
+long strtol(const char *nPtr, const char **endPtr, int base) {
     long result;
     char longStr[20] = {};//20 - max num count in long
     int isNegative = 0;
@@ -88,34 +124,32 @@ long strtol(const char* nPtr, const char** endPtr, int base) {
         printf("You enter empty string.\n");
         return -1;
     }
+    //20 - max num count in long
+    if (strSize > 20) {
+        printf("Error - max num count in long. %s", nPtr);
+        return -1;
+    }
     if ((base < 0) && (base > 36)) {
         printf("Enter base 0-36, you enter %d\n", base);
         return -1;
     }
 
     if (base < 11) {
-        for (; nPtr[i] != '\0'; i++) {
-            if (i > 20) {
-                printf("Error - max num count in long. %s", nPtr);
-                return -1;
-            }
+        for (size_t e = 0; nPtr[i] != '\0'; i++) {
             //check space in string after find num
             if (checkSpace) {
                 if (nPtr[i] == ' ')
                     break;
             }
             if (isdigit(nPtr[i])) {
-                longStr[i] = nPtr[i];
+                longStr[e] = nPtr[i];
+                ++e;
                 checkSpace = 1;
             }
         }
     }
     else {
         for (size_t e = 0; nPtr[i] != '\0'; i++) {
-            if (i > 20) {
-                printf("Error - max num count in long. %s", nPtr);
-                return -1;
-            }
             //check space in string after find num
             if (checkSpace) {
                 if (nPtr[i] == ' ')
@@ -140,6 +174,11 @@ long strtol(const char* nPtr, const char** endPtr, int base) {
     result = numeralTranslation(longStr, base);
     if (nPtr[strcspn(nPtr, longStr) - 1] == '-')
         result *= -1;
+
+    if (endPtr != NULL) {
+        *endPtr = strstr(nPtr, longStr) + strlen(longStr);
+    }
+
     return result;
 }
 
