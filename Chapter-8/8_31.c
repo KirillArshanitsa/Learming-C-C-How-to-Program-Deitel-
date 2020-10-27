@@ -5,39 +5,45 @@ size_t myStrcspn(const char *,const char *);
 size_t myStrspn(const char *,const char *);
 char *myStrpbrk(const char *,const char *);
 char *myStrrchr(const char *,int);
-char *myStrstr(const char *, const char *);
+const char *myStrstr(const char *, const char *);
 
 int main(void){
-//    char *s = myStrchr("String", 'g');
-//    printf("%p %c\n", s, *s);
-//    printf("%zu\n",myStrcspn("The value is 3.14159","1234567890"));
-//    printf("%zu\n",myStrspn("The value is 3.14159","1234567890"));
-//    printf("%c\n",*myStrpbrk("The value is 3.14159","1234567890"));
-//    printf("%p\n",myStrrchr("The values is 3.14159",'s'));
-    puts(*myStrstr("abcdefabcdefabcdef","def"));
+    char *s = myStrchr("String", 'g');
+    printf("%p %c\n", s, *s);
+    printf("%zu\n",myStrcspn("The value is 3.14159","1234567890"));
+    printf("%zu\n",myStrspn("The value is 3.14159","1234567890"));
+    printf("%c\n",*myStrpbrk("The value is 3.14159","1234567890"));
+    printf("%p\n",myStrrchr("The values is 3.14159",'s'));
+    puts(myStrstr("abcdefabcdefabcdef","def"));
     return 0;
 }
 
-char *myStrstr(const char *str1, const char *str2) {
-    const char *tmpChar1;
+const char *myStrstr(const char *str1, const char *str2)
+{
+    size_t str2Size = strlen(str2) -1; // -1 in if run ==
+    size_t tmpCount;
     const char *tmpChar2;
-     while(*str1 != '\0'){
+    while(*str1 != '\0'){
         if(*str1 == *str2){
-            tmpChar1 = str1;
+            tmpCount = 0;
             tmpChar2 = str2;
-            while (*(++tmpChar1) != '\0'){
-                if (*tmpChar1 == *(++tmpChar2)){
-                    return str1;
+            while (*(++tmpChar2) != '\0'){
+                if (*tmpChar2 != *(++str1)){
+                    break;
                 }
+                ++tmpCount;
             }
+            if (tmpCount == str2Size)
+                return str1;
         }
-        ++str1;
-        ++str2;
-     }
-     return NULL;
+        else
+            ++str1;
+    }
+    return NULL;
 }
 
-char *myStrrchr(const char *str, int c){
+char *myStrrchr(const char *str, int c)
+{
     size_t srtSize = strlen(str);
     while(--srtSize){
         if (str[srtSize] == c)
@@ -46,6 +52,7 @@ char *myStrrchr(const char *str, int c){
     return NULL;
 
 }
+
 char *myStrpbrk(const char *str1, const char *str2)
 {
     for (;*str1 != '\0'; str1++){
