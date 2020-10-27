@@ -5,7 +5,8 @@ size_t myStrcspn(const char *,const char *);
 size_t myStrspn(const char *,const char *);
 char *myStrpbrk(const char *,const char *);
 char *myStrrchr(const char *,int);
-const char *myStrstr(const char *, const char *);
+char *myStrstr(const char *, const char *);
+char *myStrtok(char *, const char *);
 
 int main(void){
     char *s = myStrchr("String", 'g');
@@ -15,10 +16,33 @@ int main(void){
     printf("%c\n",*myStrpbrk("The value is 3.14159","1234567890"));
     printf("%p\n",myStrrchr("The values is 3.14159",'s'));
     puts(myStrstr("abcdefabcdefabcdef","def"));
+
+    s = "The values is 3.14159";
+    puts(s);
+    puts(myStrtok(s," "));
+    puts(s);
+    s = myStrtok(NULL," ");
+    puts(s);
+
     return 0;
 }
 
-const char *myStrstr(const char *str1, const char *str2)
+char *myStrtok(char *str, const char *separartor)
+{
+    static char *beginStr;
+    if (str != NULL)
+        beginStr = str;
+
+    while(*beginStr != '\0'){
+        if(*beginStr == *separartor){
+            return ++beginStr;
+        }
+        ++beginStr;
+    }
+    return NULL;
+}
+
+char *myStrstr(const char *str1, const char *str2)
 {
     size_t str2Size = strlen(str2) -1; // -1 in if run ==
     size_t tmpCount;
