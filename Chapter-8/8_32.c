@@ -1,77 +1,88 @@
 #include<stdio.h>
-void *myMemcpy(void *, const void *, size_t);
-void *myMemmove(void *, const void *, size_t);
-void *myMemcmp(void *, const void *, size_t);
-void *myMemchr(const void *, int , size_t);
-void *myMemset(const void *, int , size_t);
 
-int main(void){
-//    char str[] ="Home Sweet Home";
-//    char result[10];
-//    myMemcpy(result, str, 4);
-//    puts(result);
-//
-//    puts(myMemmove(str,&str[5],10));
-//    printf("%d\n",myMemcmp("ABCDEFG","ABCDXYZ",7));
-//    printf("%s\n",myMemchr("This is a string.",'r',16));
-    printf("%s\n",myMemset("BBBBBBBBBBB",'b',5));
+void* myMemcpy(void*, const void*, size_t);
+void* myMemmove(void*, const void*, size_t);
+void* myMemcmp(void*, const void*, size_t);
+void* myMemchr(const void*, int, size_t);
+void* myMemset(const void*, int, size_t);
+
+int main(void) {
+    char str[] ="Home Sweet Home";
+    char myMemcmpStr[] = "ABCDYFG";
+    char result[10];
+    myMemcpy(result, str, 4);
+    puts(result);
+    printf_s("%s\n", myMemmove(str, &str[5], 10));
+    printf_s("%d\n",myMemcmp(myMemcmpStr,"ABCDXYZ",6));
+    printf_s("%s\n",myMemchr("This is a string.",'r',16));
+    char b [15] = "BBBBBBBBBBB";
+    printf_s("%s\n", myMemset(b, 'b', 5));
+
     return 0;
 }
 
-//TODO Not work in 28 string
-void *myMemset(const void *s1, int c, size_t n) {
-    unsigned int uc = (unsigned int) c;
-    char *tmpPtr;
-    void *beginStrPtr = (void*) s1;
-    while(n-- > 0){
-        tmpPtr = (char *)s1;
+void* myMemset(const void* s1, int c, size_t n) {
+    unsigned int uc = (unsigned int)c;
+    char* tmpPtr = (char*)s1;
+    void* beginStrPtr = (void*)s1;
+  
+    while (n-- > 0) {
         *tmpPtr = uc;
-        s1++;
+        tmpPtr++;
     }
 
     return beginStrPtr;
 }
 
-void *myMemchr(const void *s1, int c, size_t n){
-    unsigned int uc = (unsigned int) c;
-    for (;n-- > 0; s1++){
-        if( *(char *)s1 == uc)
-            return s1;
+void* myMemchr(const void* s1, int c, size_t n) {
+    unsigned int uc = (unsigned int)c;
+    char *tmpChar = (char*)s1;
+    for (; n-- > 0; tmpChar++) {
+        if (*(char*)tmpChar == uc)
+            return tmpChar;
     }
     return NULL;
 }
 
 //For demand in book return void * and int
-void *myMemcmp(void *s1, const void *s2, size_t n){
-    while(n-- > 0) {
-        if(*(char *) s1 < *(char *) s2)
-            return 1;
-        else if(*(char *) s1 > *(char *) s2)
-            return -1;
-        ++s1;
-        ++s2;
+void* myMemcmp(void* s1, const void* s2, size_t n) {
+    char* tmpChar1 = (char*)s1;
+    char* tmpChar2 = (char*)s2;
+    while (n-- > 0) {
+        if (*tmpChar1 < *tmpChar2)
+            return (void *) 1;
+        else if (*tmpChar1 > * tmpChar2)
+            return (void*) -1;
+        ++tmpChar1;
+        ++tmpChar2;
     }
     return 0;
 }
 
-void *myMemmove(void *s1, const void *s2, size_t n){
-    char tmpStr[n];
-    void *beginStr = s1;
-    for (size_t i = 0; i < n ;i++, s2++)
-        tmpStr[i] = * (char*)s2;
+void* myMemmove(void* s1, const void* s2, size_t n) {
+    char* tmpChar1 = (char*)s1;
+    char* tmpChar2 = (char*)s2;
+    //TODO chage it char tmpStr[n + 1]
+    char tmpStr[100000];
 
-    for (size_t i = 0; i < n ;i++, s1++)
-        *(char *) s1 = tmpStr[i];
+    void* beginStr = s1;
+    for (size_t i = 0; i < n; i++, tmpChar2++)
+        tmpStr[i] = *tmpChar2;
+
+    for (size_t i = 0; i < n; i++, tmpChar1++)
+        *tmpChar1 = tmpStr[i];
 
     return beginStr;
 }
 
-void *myMemcpy(void *s1, const void *s2, size_t n){
-    while(n-- > 0){
-        *(char *)s1 = *(char * )s2;
-        s2++;
-        s1++;
+void* myMemcpy(void* s1, const void* s2, size_t n) {
+    char* tmpChar1 = (char*)s1;
+    char* tmpChar2 = (char*)s2;
+    while (n-- > 0) {
+        *tmpChar1 = *tmpChar2;
+        ++tmpChar1;
+        ++tmpChar2;
     }
-    *(char *)(++s1) = '\0';
+    *tmpChar1 = '\0';
     return s1;
 }
