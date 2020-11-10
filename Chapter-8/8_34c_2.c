@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX_STR_SIZE 900
 
 size_t parseString(char*, char* [], size_t[]);
 void printResult(char* const [], const size_t[], const size_t);
 void sortResult(char* [], size_t[], const size_t);
+void clearString(char*);
 
 int main(void)
 {
@@ -15,8 +17,9 @@ int main(void)
 	printf("%s %lu\n", "Enter string max size - ", MAX_STR_SIZE);
 	gets_s(str, MAX_STR_SIZE);
 
-	//To be, or not to be: that is the question:
+	//To be, or not to be: that is the question: bethats";
 	printf("You enter - %s\n", str);
+	clearString(str);
 	size_t strCount = parseString(str, allStringPtr, allStringCountPtr);
 	sortResult(allStringPtr, allStringCountPtr, strCount);
 	printResult(allStringPtr, allStringCountPtr, strCount);
@@ -24,12 +27,19 @@ int main(void)
 	return 0;
 }
 
+void clearString(char* str) {
+	for (size_t i = 0; str[i] != '\0'; i++) {
+		if (isalnum(str[i]) == 0)
+			str[i] = ' ';
+	}
+}
+
 void sortResult(char* allStringPtr[], size_t allStringCountPtr[], const size_t allStrCount)
 {
 	size_t tmpCount;
 	char* tmpChar;
 	for (size_t e = 0; e < allStrCount - 1; e++) {
-		for (size_t i = e; i < allStrCount - 1; i++) {
+		for (size_t i = 1; i < allStrCount - 1; i++) {
 			if (allStringPtr[i][0] > allStringPtr[i + 1][0]) {
 				tmpChar = allStringPtr[i];
 				allStringPtr[i] = allStringPtr[i + 1];
@@ -37,7 +47,6 @@ void sortResult(char* allStringPtr[], size_t allStringCountPtr[], const size_t a
 				tmpCount = allStringCountPtr[i];
 				allStringCountPtr[i] = allStringCountPtr[i + 1];
 				allStringCountPtr[i + 1] = tmpCount;
-
 			}
 		}
 	}
@@ -71,15 +80,16 @@ size_t parseString(char* str, char* allStringPtr[], size_t allStringCountPtr[])
 			previousTempPtr = tmpPtr;
 			tmpPtr = strstr(tmpPtr + tokenStrSize + 1, tokenPtr);
 			//check delimiter if part of word and finish string 
-			if (previousTempPtr[tokenStrSize] == ' ') {
-				for (size_t clearStrPtr = 0; clearStrPtr < tokenStrSize + 1; clearStrPtr++)
+			if ((*(previousTempPtr - 1) == ' ') && (previousTempPtr[tokenStrSize] == ' ')) {
+				for (size_t clearStrPtr = 0; clearStrPtr < tokenStrSize; clearStrPtr++)  // tokenStrSize+ 1
 					previousTempPtr[clearStrPtr] = ' ';
+				strCount++;
 			}
-			else if (previousTempPtr[tokenStrSize] == '\0') {
+			else if ((*(previousTempPtr - 1) == ' ') && (previousTempPtr[tokenStrSize] == '\0')) {
 				for (size_t clearStrPtr = 0; clearStrPtr < tokenStrSize; clearStrPtr++)
 					previousTempPtr[clearStrPtr] = ' ';
+				strCount++;
 			}
-			strCount++;
 		}
 
 		allStringPtr[allStrCount] = tokenPtr;
