@@ -23,7 +23,7 @@ void printStr(const char *numStrPtr)
 		printf("*");
 	for (size_t i = 0; numStrPtr[i] != '\0'; i++) {
 		if ((isdigit(numStrPtr[i]) == 0) && (numStrPtr[i] != '.') && (numStrPtr[i] != ',')) {
-			printf_s("\nError in %zu %c\n", i, numStrPtr[i]);
+			printf_s("\nError in char - %zu %c, you enter - %s\n", i, numStrPtr[i], numStrPtr);
 			return;
 		}
 		else 
