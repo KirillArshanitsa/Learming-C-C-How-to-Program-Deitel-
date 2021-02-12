@@ -5,6 +5,7 @@
 void generateTestData(const char[], int, int);
 void readTestData(const char[]);
 void clearFile(const char[]);
+void compareTransactions(const char[], const char[], const char[]);
 
 struct Account {
 	int accountNum;
@@ -15,9 +16,6 @@ struct Account {
 
 int main(void) 
 {
-	//FILE *ofPtr = fopen("oldmast.dat", "r");
-	//FILE *tfPtr = fopen("trans.dat", "r");
-	//FILE *nfPtr = fopen("newmast.dat", "w");
 	const char oldmast [] = "oldmast.dat";
 	const char trans[] = "trans.dat";
 	const char newmast[] = "newmast.dat";
@@ -27,7 +25,7 @@ int main(void)
 	generateTestData(oldmast, 1, 10);
 	puts("Generate test transactions");
 	clearFile(trans);
-	generateTestData(trans, 12, 15);
+	generateTestData(trans, 1, 5);
 	generateTestData(trans, 19, 21);
 
 	puts("\nRead test data");
@@ -35,10 +33,84 @@ int main(void)
 	puts("\nRead test transactions data");
 	readTestData(trans);
 
+	puts("\n\nComprae transactions");
+	compareTransactions(oldmast, trans, newmast);
+	puts("\nRead result data");
+	readTestData(newmast);
+
 	return 0;
 }
 
-void clearFile(const char fileName[]) {
+void compareTransactions(const char oldmast[], const char trans[], const char newmast[])
+{
+	FILE* ofPtr;
+	FILE* tfPtr;
+	FILE* nfPtr;
+	int accountNumOldMast;
+	char nameOldMast[SIZE_OF_CLIENT_NAME];
+	double currentBalanceOldMast;
+	int accountNumTemp;
+	char nameTemp[SIZE_OF_CLIENT_NAME];
+	double dollarAmountTemp;
+	int notHaveInTrans;
+	errno_t erofPtr = fopen_s(&ofPtr, oldmast, "r");
+	errno_t ertfPtr = fopen_s(&tfPtr, trans, "r");
+	errno_t ernfPtr = fopen_s(&nfPtr, newmast, "w");
+
+	if (ofPtr == NULL) {
+		printf("Error open file %s", oldmast);
+		return;
+	}
+	if (tfPtr == NULL) {
+		printf("Error open file %s", trans);
+		return;
+	}
+	if (nfPtr == NULL) {
+		printf("Error open file %s", newmast);
+		return;
+	}
+
+	fscanf_s(ofPtr, "%d%s%lf", &accountNumOldMast, nameOldMast, SIZE_OF_CLIENT_NAME, &currentBalanceOldMast);
+	while (!feof(ofPtr)) {
+		fscanf_s(tfPtr, "%d%s%lf", &accountNumTemp, nameTemp, SIZE_OF_CLIENT_NAME, &dollarAmountTemp);
+		while (!feof(tfPtr)) {
+			if (accountNumOldMast == accountNumTemp)
+				currentBalanceOldMast += dollarAmountTemp;
+			fscanf_s(tfPtr, "%d%s%lf", &accountNumTemp, nameTemp, SIZE_OF_CLIENT_NAME, &dollarAmountTemp);
+		}
+		fprintf_s(nfPtr, "%d %s %lf\n", accountNumOldMast, nameOldMast, currentBalanceOldMast);
+		rewind(tfPtr);
+
+		fscanf_s(ofPtr, "%d%s%lf", &accountNumOldMast, nameOldMast, SIZE_OF_CLIENT_NAME, &currentBalanceOldMast);
+	}
+	fclose(nfPtr);
+
+	rewind(ofPtr);
+	rewind(tfPtr);
+	fscanf_s(tfPtr, "%d%s%lf", &accountNumTemp, nameTemp, SIZE_OF_CLIENT_NAME, &dollarAmountTemp);
+	while (!feof(tfPtr)) {
+		fscanf_s(ofPtr, "%d%s%lf", &accountNumOldMast, nameOldMast, SIZE_OF_CLIENT_NAME, &currentBalanceOldMast);
+		notHaveInTrans = 1;
+		while (!feof(ofPtr)) {
+			if (accountNumOldMast == accountNumTemp) {
+				notHaveInTrans = 0;
+				break;
+			}
+			fscanf_s(ofPtr, "%d%s%lf", &accountNumOldMast, nameOldMast, SIZE_OF_CLIENT_NAME, &currentBalanceOldMast);
+		}
+		if (notHaveInTrans)
+			printf("Unmatched transaction record for account nuber %d\n", accountNumTemp);
+
+		rewind(ofPtr);
+		fscanf_s(tfPtr, "%d%s%lf", &accountNumTemp, nameTemp, SIZE_OF_CLIENT_NAME, &dollarAmountTemp);
+	}
+	fclose(ofPtr);
+	fclose(tfPtr);
+}
+
+
+void clearFile(const char fileName[]) 
+{
 	FILE* filePtr;
 	errno_t err = fopen_s(&filePtr, fileName, "w");
 	if (filePtr == NULL) {
