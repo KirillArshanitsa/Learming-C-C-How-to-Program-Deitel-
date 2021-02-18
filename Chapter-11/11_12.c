@@ -141,9 +141,10 @@ void readData(FILE *fPtr, size_t sizeStruct)
 	struct instrument tempStructInstrument;
 	int i = 1;
 	rewind(fPtr);
+	fread(&tempStructInstrument, sizeStruct, 1, fPtr);
 	while (!feof(fPtr)) {
-		fread(&tempStructInstrument, sizeStruct, 1, fPtr);
 		printf("%d  %u %s %u %Lf\n",i, tempStructInstrument.id, tempStructInstrument.name, tempStructInstrument.count, tempStructInstrument.price);
+		fread(&tempStructInstrument, sizeStruct, 1, fPtr);
 		i++;
 	}
 }
@@ -186,7 +187,7 @@ void initFile(const char file[])
 	//	}
 	//}
 
-	for (int i = 1; i < INSTRUMENT_COUNT; i++)
+	for (int i = 1; i <= INSTRUMENT_COUNT; i++)
 		fwrite(&templateStruct, sizeStruct, 1, fPtr);
 
 	for (size_t s = 0; s < countBeginStruct; s++) {
