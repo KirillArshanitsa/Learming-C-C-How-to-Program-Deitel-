@@ -42,7 +42,7 @@ int main(void) {
 }
 
 void saveDumpInFile(const int memory[], const int size) {
-	char fileName [FILE_NAME_SIZE];
+	char fileName[FILE_NAME_SIZE];
 	int countStr = 0;
 	FILE* filePtr;
 
@@ -61,12 +61,12 @@ void saveDumpInFile(const int memory[], const int size) {
 
 	fprintf_s(filePtr, "Print memory dump\n");
 	fprintf_s(filePtr, "%s\n", "REGISTRY:");
-	fprintf_s(filePtr, "%-22s%d\n", "accumulator", accumulator);
+	fprintf_s(filePtr, "%-21s%+d\n", "accumulator", accumulator);
 	fprintf_s(filePtr, "%-22s%d\n", "instructionCounter", instructionCounter);
 	fprintf_s(filePtr, "%-22s%d\n", "instructionRegister", instructionRegister);
 	fprintf_s(filePtr, "%-22s%d\n", "operationCode", operationCode);
 	fprintf_s(filePtr, "%-22s%d\n", "operand", operand);
-	fprintf_s(filePtr, "%s", "\n\nMEMORY:");
+	fprintf_s(filePtr, "%s", "\n\nMEMORY:\n");
 	for (int i = 0; i < 10; i++)
 		fprintf_s(filePtr, "%8d", i);
 	for (int i = 0; i < size; i++) {
@@ -105,13 +105,13 @@ unsigned int getCodeFromFile(int memory[])
 		printf("Enter file name, with max name size - %d:", FILE_NAME_SIZE);
 		countStr = scanf_s("%s", fileName, FILE_NAME_SIZE);
 	} while (countStr > FILE_NAME_SIZE || countStr == 0);
-	
+
 	fopen_s(&filePtr, fileName, "r");
 	if (filePtr == NULL) {
 		printf("Error open file %s\n", fileName);
 		return -1;
 	}
-	
+
 	fscanf_s(filePtr, "%d", &memory[i]);
 	while (!feof(filePtr)) {
 		fscanf_s(filePtr, "%d", &memory[++i]);
@@ -126,71 +126,71 @@ void runCommands(int memory[], const unsigned int final) {
 		operationCode = instructionRegister / 100;
 		operand = instructionRegister % 100;
 		switch (operationCode) {
-			case 10:
-				puts("Enter number:");
-				scanf_s("%d", &memory[operand]);
-				break;
-			case 11:
-				printf("%d", memory[operand]);
-				break;
-			case 20:
-				accumulator = memory[operand];
-				break;
-			case 21:
-				memory[operand] = accumulator;
-				break;
-			case 22:
-				memory[operand] < 0 ? accumulator = (memory[operand] * -1) : accumulator = memory[operand];
-				break;
-			case 30:
-				accumulator += memory[operand];
-				break;
-			case 31:
-				accumulator -= memory[operand];
-				break;
-			case 32:
-				if (memory[operand] == 0) {
-					puts("Error / 0");
-					printDump(memory, SIZE);
-					return;
-				}
-				else
-					accumulator /= memory[operand];
-				break;
-			case 33:
-				accumulator *= memory[operand];
-				break;
-			case 34:
-				if (memory[operand] > 0) {
-					while (memory[operand]-- > 0)
-						accumulator *= accumulator;
-				}
-				else if (memory[operand] == 0)
-					accumulator = 0;
-				else {
-					//TODO fix 1/int
-					while (memory[operand]++ < 0)
-						accumulator *= accumulator;
-					printf("!!! accumulator = %d\n", 1.0 / accumulator);
-					accumulator = 1 / accumulator;
-				}
-				break;
-			case 40:
-				instructionCounter = operand;
-				break;
-			case 41:
-				if (accumulator < 0)
-					instructionCounter = operand;
-				break;
-			case 42:
-				if (accumulator == 0)
-					instructionCounter = operand;
-				break;
-			case 43:
+		case 10:
+			puts("Enter number:");
+			scanf_s("%d", &memory[operand]);
+			break;
+		case 11:
+			printf("%d", memory[operand]);
+			break;
+		case 20:
+			accumulator = memory[operand];
+			break;
+		case 21:
+			memory[operand] = accumulator;
+			break;
+		case 22:
+			memory[operand] < 0 ? accumulator = (memory[operand] * -1) : accumulator = memory[operand];
+			break;
+		case 30:
+			accumulator += memory[operand];
+			break;
+		case 31:
+			accumulator -= memory[operand];
+			break;
+		case 32:
+			if (memory[operand] == 0) {
+				puts("Error / 0");
+				printDump(memory, SIZE);
 				return;
-			default:
-				printf("Not corrcet command %d\n", operationCode);
-				break;
+			}
+			else
+				accumulator /= memory[operand];
+			break;
+		case 33:
+			accumulator *= memory[operand];
+			break;
+		case 34:
+			if (memory[operand] > 0) {
+				while (memory[operand]-- > 0)
+					accumulator *= accumulator;
+			}
+			else if (memory[operand] == 0)
+				accumulator = 0;
+			else {
+				//TODO fix 1/int
+				while (memory[operand]++ < 0)
+					accumulator *= accumulator;
+				printf("!!! accumulator = %d\n", 1.0 / accumulator);
+				accumulator = 1 / accumulator;
+			}
+			break;
+		case 40:
+			instructionCounter = operand;
+			break;
+		case 41:
+			if (accumulator < 0)
+				instructionCounter = operand;
+			break;
+		case 42:
+			if (accumulator == 0)
+				instructionCounter = operand;
+			break;
+		case 43:
+			return;
+		default:
+			printf("Not corrcet command %d\n", operationCode);
+			break;
 		}
 	}
 }
@@ -221,7 +221,7 @@ unsigned int loadCommands(int memory[], const int size) {
 void printDump(const int memory[], const int size) {
 	puts("\n\nPrint memory dump");
 	puts("REGISTRY:");
-	printf("%-22s%d\n", "accumulator", accumulator);
+	printf("%-21s%+d\n", "accumulator", accumulator);
 	printf("%-22s%d\n", "instructionCounter", instructionCounter);
 	printf("%-22s%d\n", "instructionRegister", instructionRegister);
 	printf("%-22s%d\n", "operationCode", operationCode);
