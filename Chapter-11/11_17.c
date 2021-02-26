@@ -73,7 +73,7 @@ void saveDumpInFile(const int memory[], const int size) {
 		if (i % 10 == 0) {
 			fprintf_s(filePtr, "\n%2d", i);
 			if (memory[i] > 0)
-				fprintf_s(filePtr, "%-2s%4d", "+", memory[i]);
+				fprintf_s(filePtr, "%2s%4d", "+", memory[i]);
 			else if (memory[i] == 0)
 				fprintf_s(filePtr, "%2s0000", "+");
 			else
@@ -233,7 +233,7 @@ void printDump(const int memory[], const int size) {
 		if (i % 10 == 0) {
 			printf("\n%2d", i);
 			if (memory[i] > 0)
-				printf("%-2s%4d", "+", memory[i]);
+				printf("%2s%4d", "+", memory[i]);
 			else if (memory[i] == 0)
 				printf("%2s0000", "+");
 			else
