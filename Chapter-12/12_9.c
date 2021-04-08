@@ -14,7 +14,7 @@ typedef CharList *CharListPtr;
 
 void insert(CharListPtr *, char);
 void printElems(CharListPtr);
-char revert(CharListPtr, CharListPtr *);
+void revert(CharListPtr, CharListPtr *);
 
 int main(void) 
 {
@@ -36,12 +36,12 @@ int main(void)
 }
 
 
-char revert(CharListPtr originCharListPtr, CharListPtr *revertCharList)
+void revert(CharListPtr originCharListPtr, CharListPtr *revertCharList)
 {
 	static CharListPtr prevousRevertListPtr;
 
 	if (originCharListPtr == NULL)
-		return NULL;
+		return;
 	else {
 		CharListPtr revertElemPtr = (CharListPtr)malloc(sizeof(CharListPtr));
 		if (revertElemPtr != NULL) {
@@ -50,13 +50,11 @@ char revert(CharListPtr originCharListPtr, CharListPtr *revertCharList)
 			*revertCharList = revertElemPtr;
 
 			revertElemPtr->symbol = originCharListPtr->symbol;
-			char originalChar = revert(originCharListPtr->charListPtr, revertCharList);
-
-			return originCharListPtr->symbol;
+			revert(originCharListPtr->charListPtr, revertCharList);
 		}
 		else {
 			puts("Error create list elem\n");
-			return NULL;
+			return;
 		}
 	}
 
