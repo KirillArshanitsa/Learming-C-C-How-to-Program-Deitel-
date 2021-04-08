@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-#define CHARS_COUNT 100
+#define CHARS_COUNT 10
 
 struct charList {
 	char symbol;
@@ -17,6 +18,7 @@ char revert(CharListPtr, CharListPtr *);
 
 int main(void) 
 {
+	srand(time(NULL));
 	CharListPtr charList = NULL;
 	CharListPtr revertCharList = NULL;
 
