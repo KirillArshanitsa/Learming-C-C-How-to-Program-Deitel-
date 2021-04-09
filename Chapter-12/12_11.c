@@ -25,7 +25,7 @@ int main(void)
 {
 	char str[STRING_SIZE];
 	NodeStackPtr nodeStackPtr = NULL;
-	printf("Enter sting. Max size - %d\n", STRING_SIZE - 1);
+	printf("Enter sting. Max size - %d\n", STRING_SIZE - 1); //I did, did I? | red rum, sir, is murder
 	gets_s(str, STRING_SIZE -1);
 
 	if (strIsPalindrome(str, &nodeStackPtr))
@@ -39,11 +39,12 @@ int main(void)
 
 void printStack(NodeStackPtr nodeStackPtr) 
 {	
-	puts("printStack");
+	puts("Print Stack:");
 	while (nodeStackPtr != NULL) {
-		printf("%c ", nodeStackPtr->symbol);
+		printf("%c", nodeStackPtr->symbol);
 		nodeStackPtr = nodeStackPtr->nodeStackPtr;
 	}
+	puts("");
 }
 
 char pop(NodeStackPtr *nodeStackPtr)
@@ -89,22 +90,23 @@ void push(NodeStackPtr *nodeStackPtr, char symbol)
 
 int strIsPalindrome(const char str[], NodeStackPtr *nodeStackPtr)
 {
+	size_t copyStrSize = 0;
+	char copyStr[STRING_SIZE];
 
 	for (size_t i = 0; str[i] != '\0'; i++) {
 		if (isspace(str[i]) || ispunct(str[i]))
 			continue;
-		push(nodeStackPtr, str[i]);
+		copyStr[copyStrSize] = str[i];
+		push(nodeStackPtr, copyStr[copyStrSize]);
+		copyStrSize++;
 	}
+	copyStr[copyStrSize] = '\0';
+	puts(copyStr);
+	printStack(*nodeStackPtr);
 
-	for (size_t i = 0; str[i] != '\0'; i++){
-		if (isspace(str[i]) || ispunct(str[i])) 
-			continue;
-
-		else {
-			if (str[i] != pop(nodeStackPtr))
-				return 0;
-		}
-
+	for (size_t i = 0; copyStr[i] != '\0'; i++){
+		if (copyStr[i] != pop(nodeStackPtr))
+			return 0;
 	}
 
 	return 1;
