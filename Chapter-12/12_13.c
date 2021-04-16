@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <math.h>
 
 #define MAX_SIZE_EXPRESSION 100
 
@@ -20,74 +22,75 @@ int evaluatePostfixExpression(char *);
 
 int main(void)
 {
-    char expression[MAX_SIZE_EXPRESSION +1] = "62+5*84/-";
-    printf("Result = %d",evaluatePostfixExpression(expression));
+    char expression[MAX_SIZE_EXPRESSION +1];// = "62+5*84/-";
+
+    puts("Enter data:");
+    gets_s(expression, MAX_SIZE_EXPRESSION);
+    printf("Result = %d\n",evaluatePostfixExpression(expression));
     return 0;
 }
 
 int evaluatePostfixExpression(char *expr)
 {
     StackNodePtr stackNodePtr = NULL;
-    int x, y, result;
+    int x, y;
     for(size_t i = 0; expr[i] != '\0'; i++){
-        printf("expr[i] = %c\n", expr[i]);
-        printf("%d\n", expr[i]);
-        if(expr[i] - '0' == expr[i])
-            push(&stackNodePtr, expr[i]);
+       //if(expr[i] - '0' == expr[i] - 48)
+       if (isdigit(expr[i]))
+            push(&stackNodePtr, expr[i] - 48);
         else{
             x = pop(&stackNodePtr);
             y = pop(&stackNodePtr);
-            if (expr[i] == '/'){
-                if (x >= y)
-                    result = x / y;
-                else
-                    result = y / x;
-            }
-            else if (expr[i] == '-'){
-                if (x >= y)
-                    result = x - y;
-                else
-                    result = y - x;
-            }
-            else if(expr[i] == '*')
-                result = x * y;
-            else if(expr[i] == '+')
-                result = x + y;
-            else if(expr[i] == '%')
-                result = x % y;
-            else if(expr[i] == '^')
-                result = x ^ y;
-            else
-                printf("Error operation %c\n", expr[i]);
-
-            push(&stackNodePtr, result);
+            calculate(x, y, expr[i] );
+            push(&stackNodePtr, calculate(x, y, expr[i]));
         }
-        return pop(&stackNodePtr);
+
     }
+    return pop(&stackNodePtr);
 }
 
-int calculate(int op1, int op2, char operator)
+int calculate(int op1, int op2, char operatorChar)
 {
-
+    if (operatorChar == '/'){
+        if (op1 >= op2)
+            return op1 / op2;
+        else
+            return op2 / op1;
+    }
+    else if (operatorChar == '-'){
+        if (op1 >= op2)
+            return op1 - op2;
+        else
+            return op2 - op1;
+    }
+    else if(operatorChar == '*')
+        return op1 * op2;
+    else if(operatorChar == '+')
+        return op1 + op2;
+    else if(operatorChar == '%')
+        return op1 % op2;
+    else if(operatorChar == '^')
+        return pow(op1,op2);
+    else
+        printf("Error operation %c\n", operatorChar);
 }
 
 void push(StackNodePtr *topPtr, int value)
 {
     StackNodePtr tmpPtr;
     if((*topPtr) == NULL){
-        tmpPtr = malloc(sizeof(StackNode));
+        tmpPtr = (StackNodePtr) malloc(sizeof(StackNode));
         tmpPtr->data = value;
         tmpPtr->stackNodePtr = NULL;
         *topPtr = tmpPtr;
     }
     else{
-        tmpPtr = malloc(sizeof(StackNode));
+        tmpPtr = (StackNodePtr) malloc(sizeof(StackNode));
         tmpPtr->data = value;
         tmpPtr->stackNodePtr = (*topPtr);
         *topPtr = tmpPtr;
 
     }
-
 }
 
 int pop(StackNodePtr *topPtr)
