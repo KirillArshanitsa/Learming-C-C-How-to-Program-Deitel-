@@ -22,10 +22,10 @@ int evaluatePostfixExpression(char *);
 
 int main(void)
 {
-    char expression[MAX_SIZE_EXPRESSION +1];// = "62+5*84/-";
+    char expression[MAX_SIZE_EXPRESSION +1] = "6 2 + 5 * 8 4 / -";
 
-    puts("Enter data:");
-    gets_s(expression, MAX_SIZE_EXPRESSION);
+    //puts("Enter data:");
+    //gets(expression);
     printf("Result = %d\n",evaluatePostfixExpression(expression));
     return 0;
 }
@@ -35,9 +35,11 @@ int evaluatePostfixExpression(char *expr)
     StackNodePtr stackNodePtr = NULL;
     int x, y;
     for(size_t i = 0; expr[i] != '\0'; i++){
-       //if(expr[i] - '0' == expr[i] - 48)
-       if (isdigit(expr[i]))
+        //if(expr[i] - '0' == expr[i] - 48)
+        if (isdigit(expr[i]))
             push(&stackNodePtr, expr[i] - 48);
+        else if(expr[i] == ' ')
+            continue;
         else{
             x = pop(&stackNodePtr);
             y = pop(&stackNodePtr);
