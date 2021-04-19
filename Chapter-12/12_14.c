@@ -24,7 +24,6 @@ int evaluatePostfixExpression(char *);
 int main(void)
 {
     char expression[MAX_SIZE_EXPRESSION +1] = "6 2 + 5 * 8 4 / -";
-
     //puts("Enter data:");
     //gets(expression);
     printf("Result = %d\n",evaluatePostfixExpression(expression));
@@ -38,19 +37,19 @@ int evaluatePostfixExpression(char *expr)
     int x, y, tmpNum;
     for(size_t i = 0, e; expr[i] != '\0'; i++){
        if (isdigit(expr[i])){
-           for (e = i; expr[e + 1] != '\0' && isdigit(expr[e + 1]); e++)
+           for (e = i; (expr[e + 1] != '\0') && (isdigit(expr[e + 1])); e++)
                ;
            if (e > i){
                tmpNum = 0;
-               for(size_t tmpChar = i ;tmpChar <= e;tmpChar++, tmpNum++){
+               for(size_t tmpChar = i ;tmpChar <= e; tmpChar++, tmpNum++){
                    tmpNumStr[tmpNum] = expr[tmpChar];
                }
-               tmpNumStr[e + 1] = '\0';
-               printf("\ntmpNumStr = %s\n", tmpNumStr);
+               tmpNumStr[tmpNum] = '\0';
+
                tmpNum = atoi(tmpNumStr);
-               if(tmpNum != 0){
+               i = e;
+               if(tmpNum != 0)
                    push(&stackNodePtr, tmpNum);
-               }
                else{
                    printf("Error transfer str to int %s\n", tmpNumStr);
                    return 0;
@@ -65,7 +64,6 @@ int evaluatePostfixExpression(char *expr)
        else{
             x = pop(&stackNodePtr);
             y = pop(&stackNodePtr);
-            calculate(x, y, expr[i] );
             push(&stackNodePtr, calculate(x, y, expr[i]));
        }
 
