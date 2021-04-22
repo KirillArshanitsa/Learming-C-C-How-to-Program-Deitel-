@@ -57,7 +57,7 @@ int main (void)
         timeServiceClient = dequeue(&headPtr, &tailPtr);
         timeClientEmergence = 1 + rand() % 4;
 
-        tmpTimeWaitService = timeClientEmergence + timeServiceClient + timeNextClientEmergence;
+        tmpTimeWaitService = timeServiceClient + timeNextClientEmergence;
         if (tmpTimeWaitService > maxTimeWaitService)
             maxTimeWaitService = tmpTimeWaitService;
 
