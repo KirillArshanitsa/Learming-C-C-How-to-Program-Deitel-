@@ -28,7 +28,6 @@ int main (void)
     unsigned int timeServiceClient = 1 + rand() % MAX_CLIENT_TIME;
     unsigned int timeNextClientEmergence = 0;
 
-
     unsigned int maxCountClientinQueue = 0;
     unsigned int tmpCountClientinQueue;
     unsigned int maxTimeWaitService = timeClientEmergence + timeServiceClient;
@@ -41,7 +40,7 @@ int main (void)
             enqueue(&headPtr, &tailPtr, NULL);
             tmpCountClientinQueue = getMaxCountClientinQueue(headPtr);
             if (tmpCountClientinQueue > maxCountClientinQueue)
-                maxCountClientinQueue += tmpCountClientinQueue;
+                maxCountClientinQueue = tmpCountClientinQueue;
             timeNextClientEmergence = 0;
         }
         timeNextClientEmergence = 1 + rand() % MAX_CLIENT_TIME;
@@ -58,7 +57,7 @@ int main (void)
         timeServiceClient = dequeue(&headPtr, &tailPtr);
         timeClientEmergence = 1 + rand() % 4;
 
-        tmpTimeWaitService = timeClientEmergence + timeServiceClient;
+        tmpTimeWaitService = timeClientEmergence + timeServiceClient + timeNextClientEmergence;
         if (tmpTimeWaitService > maxTimeWaitService)
             maxTimeWaitService = tmpTimeWaitService;
 
@@ -97,6 +96,7 @@ unsigned int dequeue(QueueNodePtr *headPtr, QueueNodePtr *tailPtr)
     returnedVal = tmpPtr->customerServiceTime;
     *headPtr = tmpPtr->nodeQueuePtr;
 
+    //if(*headPtr == NULL)
     if(tmpPtr == NULL)
         *tailPtr = NULL;
     free(tmpPtr);
