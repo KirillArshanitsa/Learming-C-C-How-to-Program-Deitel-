@@ -28,7 +28,7 @@ int main(void)
     puts("The numbers being placed in the tree are:");
 
     // insert random values between 0 and 14 in the tree
-    for (unsigned int i = 1; i <= 7; ++i) {
+    for (unsigned int i = 1; i <= 20; ++i) {
         int item = rand() % 15;
         printf("%3d", item);
         insertNode(&rootPtr, item);
@@ -52,7 +52,7 @@ void insertNode(TreeNodePtr *treePtr, int value)
 {
     // if tree is empty
     if (*treePtr == NULL) {
-        *treePtr = malloc(sizeof(TreeNode));
+        *treePtr = (TreeNodePtr) malloc(sizeof(TreeNode));
 
         // if memory was allocated, then assign data
         if (*treePtr != NULL) {
@@ -68,21 +68,7 @@ void insertNode(TreeNodePtr *treePtr, int value)
         if (value < (*treePtr)->data) {
             insertNode(&((*treePtr)->leftPtr), value);
         }
-        else if (value == (*treePtr)->data){
-            printf("%s", "dup");
-            if ( ((*treePtr)->leftPtr != NULL) && ((*treePtr)->leftPtr->data <= value) )
-                insertNode(&((*treePtr)->rightPtr), value);
-            else if( ((*treePtr)->rightPtr != NULL) && ((*treePtr)->rightPtr->data >= value) )
-                insertNode(&((*treePtr)->leftPtr), value);
-            //else if ((*treePtr)->leftPtr->data > value)
-            else{
-                insertNode(&((*treePtr)->leftPtr), value);
-               // printf("Error check %d\n", value);
-            }
-
-        }
-
-        else if (value > (*treePtr)->data) {
+        else if (value >= (*treePtr)->data) {
             insertNode(&((*treePtr)->rightPtr), value);
         }
         else { // duplicate data value ignored
