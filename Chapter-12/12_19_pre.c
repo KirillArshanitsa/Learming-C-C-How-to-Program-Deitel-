@@ -1,9 +1,8 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-// self-referential structure                            
+// self-referential structure
 struct treeNode {
     struct treeNode *leftPtr; // pointer to left subtree
     int data; // node value
@@ -18,167 +17,114 @@ void insertNode(TreeNodePtr *treePtr, int value);
 void inOrder(TreeNodePtr treePtr);
 void preOrder(TreeNodePtr treePtr);
 void postOrder(TreeNodePtr treePtr);
-void deleteNode(TreeNodePtr *treePtr, int value);
+void deleteNode(TreeNodePtr *treePtr, int delValue);
+
 
 // function main begins program execution
 int main(void)
 {
-    TreeNodePtr delParrentPtr = NULL; // tree initially empty
-    //srand(time(NULL));
-    int delVal = 4;
+    TreeNodePtr rootPtr = NULL; // tree initially empty
+
+    srand(time(NULL));
     puts("The numbers being placed in the tree are:");
 
     // insert random values between 0 and 14 in the tree
-    for (unsigned int i = 1; i <= 21; ++i) {
-        int item = rand() % 30;
+    for (unsigned int i = 1; i <= 10; ++i) {
+        int item = rand() % 15;
         printf("%3d", item);
-        insertNode(&delParrentPtr, item);
+        insertNode(&rootPtr, item);
     }
 
     // traverse the tree preOrder
     puts("\n\nThe preOrder traversal is:");
-    preOrder(delParrentPtr);
+    preOrder(rootPtr);
 
     // traverse the tree inOrder
     puts("\n\nThe inOrder traversal is:");
-    inOrder(delParrentPtr);
+    inOrder(rootPtr);
 
     // traverse the tree postOrder
     puts("\n\nThe postOrder traversal is:");
-    postOrder(delParrentPtr);
-
-    printf("\n\n\nDelete node in tree with %d\n", delVal);
-    deleteNode(&delParrentPtr, delVal);
-    puts("Print tree after delete:");
-
-    if(delParrentPtr != NULL) {
-
-        puts("\nThe preOrder traversal is:");
-        preOrder(delParrentPtr);
-
-        puts("\n\nThe inOrder traversal is:");
-        inOrder(delParrentPtr);
-
-        puts("\n\nThe postOrder traversal is:");
-        postOrder(delParrentPtr);
-    }
-    else{
-        printf("Delete root node with %d", delVal);
-    }
-
-
+    postOrder(rootPtr);
 }
 
-
-void deleteNode(TreeNodePtr *treePtr, int value)
+void deleteNode(TreeNodePtr *treePtr, int delValue)
 {
-    TreeNodePtr currentPtr = *treePtr;
-    TreeNodePtr prevousPtr = NULL;
-    TreeNodePtr delParrentPtr;
-    TreeNodePtr delTmpPtr;
+    TreeNodePtr currentValPtr = *treePtr;
+    TreeNodePtr parentValPtr = NULL;
+    TreeNodePtr tmpValPtr;
+    TreeNodePtr rootChangedNodePtr = NULL;
 
-    while (currentPtr != NULL){
+    while(currentValPtr != NULL){
+        if (currentValPtr->data == delValue){
+            tmpValPtr = currentValPtr;
 
-/*        printf("currentPtr->data = %d\n", currentPtr->data);
-        if (prevousPtr != NULL)
-            printf("prevousPtr->data = %d\n", prevousPtr->data);
-        else
-            puts("prevousPtr = NULL");
-        if (currentPtr->rightPtr != NULL)
-            printf("currentPtr->rightPtr->data = %d\n", currentPtr->rightPtr->data );
-        if (currentPtr->leftPtr != NULL)
-            printf("currentPtr->leftPtr->data = %d\n", currentPtr->leftPtr->data );
-        puts("");*/
+            if((currentValPtr->leftPtr == NULL) && (currentValPtr->rightPtr == NULL)) {
+                if (parentValPtr->leftPtr == currentValPtr)
+                    parentValPtr->leftPtr = NULL;
+                else
+                    parentValPtr->rightPtr = NULL;
+            }
 
-        if (currentPtr->data == value) {
-            
-            if((currentPtr->rightPtr == NULL) && (currentPtr->leftPtr == NULL)) {
-                if (prevousPtr != NULL){
-                    if (prevousPtr->leftPtr == currentPtr)
-                        prevousPtr->leftPtr = NULL;
+            else if((currentValPtr->leftPtr != NULL) && (currentValPtr->rightPtr == NULL)) {
+                if (parentValPtr->leftPtr == currentValPtr)
+                    parentValPtr->leftPtr = currentValPtr->leftPtr;
+                else
+                    parentValPtr->rightPtr = currentValPtr->leftPtr;
+            }
+            else if((currentValPtr->leftPtr == NULL) && (currentValPtr->rightPtr != NULL)) {
+                if (parentValPtr->leftPtr == currentValPtr)
+                    parentValPtr->leftPtr = currentValPtr->rightPtr;
+                else
+                    parentValPtr->rightPtr = currentValPtr->rightPtr;
+            }
+            else{
+                currentValPtr = currentValPtr->leftPtr;
+                while (currentValPtr->rightPtr != NULL){
+                    rootChangedNodePtr = currentValPtr;
+                    currentValPtr = currentValPtr->rightPtr;
+                }
+
+                if (parentValPtr->leftPtr == tmpValPtr){
+                    parentValPtr->leftPtr = currentValPtr;
+                }
+                else{
+                    parentValPtr->rightPtr = currentValPtr;
+                }
+
+                if(rootChangedNodePtr != NULL) {
+                    if (currentValPtr->leftPtr != NULL)
+                        rootChangedNodePtr->rightPtr = currentValPtr->leftPtr;
                     else
-                        prevousPtr->rightPtr = NULL;
+                        rootChangedNodePtr->rightPtr = NULL;
                 }
-                else
-                    *treePtr = NULL;
-            }
-            else if((currentPtr->rightPtr != NULL) && (currentPtr->leftPtr == NULL)) {
-                if (prevousPtr->leftPtr == currentPtr)
-                    prevousPtr->leftPtr = currentPtr->rightPtr;
-                else
-                    prevousPtr->rightPtr = currentPtr->rightPtr;
-            }
-            else if((currentPtr->rightPtr == NULL) && (currentPtr->leftPtr != NULL)) {
-                if (prevousPtr->leftPtr == currentPtr)
-                    prevousPtr->leftPtr = currentPtr->leftPtr;
-                else
-                    prevousPtr->rightPtr = currentPtr->leftPtr;
+                
+                if(tmpValPtr->rightPtr != NULL)
+                currentValPtr->rightPtr=tmpValPtr->rightPtr;
 
             }
-            else {
-                delTmpPtr = currentPtr;
-                delParrentPtr = prevousPtr;
 
-                //chek if root node
-//                if(prevousPtr != NULL)
-//                    delParrentPtr = prevousPtr;
-//                else
-//                    delParrentPtr = currentPtr;
-
-                prevousPtr = currentPtr;
-                currentPtr = currentPtr->leftPtr;
-                while (currentPtr->rightPtr != NULL) {
-                    prevousPtr = currentPtr;
-                    currentPtr = currentPtr->rightPtr;
-                }
-
-                printf("currentPtr->data = %d\n", currentPtr->data );
-                printf("prevousPtr->data = %d\n", prevousPtr->data );
-                printf("delTmpPtr->data = %d\n", delTmpPtr->data );
-                printf("delParrentPtr->data = %d\n", delParrentPtr->data );
-
-                delParrentPtr->rightPtr = currentPtr;
-                currentPtr->rightPtr = delTmpPtr->rightPtr;
-
-                if (currentPtr->leftPtr != NULL) {
-                    prevousPtr->rightPtr = currentPtr->leftPtr;
-                }
-                else {
-                    prevousPtr->rightPtr = NULL;
-                }
-
-                //currentPtr->rightPtr = delTmpPtr->rightPtr;
-
-
-                free(delTmpPtr);
-                return;
-            }
-
-            free(currentPtr);
-            return;
+            free(tmpValPtr);
+            break;
         }
 
-        else if (currentPtr->data > value) {
-            prevousPtr = currentPtr;
-            currentPtr = currentPtr->leftPtr;
-        }
-
-        else if(currentPtr->data < value) {
-            prevousPtr = currentPtr;
-            currentPtr = currentPtr->rightPtr;
-        }
-
+        parentValPtr = currentValPtr;
+        if (currentValPtr->data > delValue)
+            currentValPtr = currentValPtr->leftPtr;
+        else
+            currentValPtr = currentValPtr->rightPtr;
     }
 
-    printf("Node with value %d not found\n", value);
+    printf("Value %d not found.\n", delValue);
 }
+
 
 // insert node into tree
 void insertNode(TreeNodePtr *treePtr, int value)
 {
     // if tree is empty
     if (*treePtr == NULL) {
-        *treePtr = (TreeNodePtr) malloc(sizeof(TreeNode));
+        *treePtr = malloc(sizeof(TreeNode));
 
         // if memory was allocated, then assign data
         if (*treePtr != NULL) {
@@ -238,6 +184,5 @@ void postOrder(TreeNodePtr treePtr)
         printf("%3d", treePtr->data);
     }
 }
-
 
 
