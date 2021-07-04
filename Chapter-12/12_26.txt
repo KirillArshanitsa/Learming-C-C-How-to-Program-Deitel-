@@ -1,0 +1,82 @@
+1 10 rem input 3 digits
+2 20 input a
+3 30 input b
+4 40 input c
+5 50 rem get middle val
+6 60 let d = (a + b + c) / 3
+7 70 rem print middle value
+8 80 print d
+9 99 end
+
+
+1 10 rem declare 2 var s for sum
+2 20 s = 0
+3 30 a = 0
+4 40 input a
+5 50 if a == -9999 goto 80
+6 60 let s = s + a
+7 70 goto 40
+8 80 print s
+9 99 end
+
+
+1 10 rem get max num in cicle i, e - control val
+2 20 e = 0
+3 30 rem variable for sum value 
+4 40 s = 0
+5 50 rem sum numbers
+6 60 input a
+7 70 let e = e + 1
+8 80 let s = s + a
+9 90 if e != 7 goto 60
+10 100 print s
+11 99 end 
+
+
+1 10 rem var m is max num, var e for num count, var c for current count
+2 20 m = -9999
+3 30 c = 0
+4 40 input e
+5 50 input k
+6 60 if e == c goto 110
+7 70 let c = c + 1
+8 80 if m <= k goto 50
+9 90 let m = k
+10 100 goto 50
+11 110 print m
+12 99 end
+
+
+1 10 rem var e is current count, m is min val, v is currebt val
+2 20 e = 0
+3 30 m = -9999
+4 40 input v
+5 50 let e = e + 1
+6 60 if e == 10 goto 99
+7 70 if m >= v goto 40
+8 80 let m = v 
+9 90 goto 40
+10 100 print m
+11 99 end
+
+
+1 10 b = 2
+2 20 let b = b + 2
+3 30 if b != 30 goto 20
+4 40 print b
+5 50 99 end
+
+
+1 10 rem var b is count, r is result
+2 20 b = 1
+3 30 r = 1
+4 40 let r = r * b
+5 50 let b = b + 2
+6 60 if b > 9 goto 80
+7 70 goto 40
+8 80 print r
+9 99 end 
+
+
+
+
