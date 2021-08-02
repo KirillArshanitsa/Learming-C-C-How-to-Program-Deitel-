@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+//#include "12_12.cpp"
 
 #define SRC_FILE_NAME_SIZE 100
-#define CODE_STR_SIZE 40
+#define CODE_STR_SIZE 56
 #define TABLE_ENTRY_COUNT 100
 
-struct tableEntry{
+struct tableEntry
+{
     int symbol;
     char type;
     int location;
@@ -16,11 +19,13 @@ typedef tableEntry TableEntry;
 
 void readSrcFile(const char[]);
 void parseCodeStr(char[]);
-int findInTableEntry(const TableEntry* symbolTable[], int, unsigned int);
+//int findInTableEntry(const TableEntry* symbolTable[], int, unsigned int);
 void printSMLCode(const int[], unsigned int);
 void printSymbolTable(TableEntry*[], unsigned int);
 int getLocationInTableEntry(TableEntry* const [], int, unsigned int, char);
 void printFlags(int[]);
+int strIsDigit(const char[]);
+
 
 unsigned int instrCounter;
 unsigned int dataCounter = TABLE_ENTRY_COUNT - 1;
@@ -44,6 +49,15 @@ int main(void)
     puts("");
     printFlags(flags);
     return 0;
+}
+
+
+int strIsDigit(const char string[]){
+    for (int i = 0;string[i] != '\0' ;i++){
+        if(isalpha(string[i]))
+            return 0;
+    }
+    return 1;
 }
 
 void printFlags(int flags[])
@@ -84,7 +98,7 @@ void printSMLCode(const int codeSML[], unsigned int sizeOfCodeSML)
         printf("%+d\n",codeSML[i]);
 }
 
-int findInTableEntry(TableEntry* const symbolTable[], int symbol, unsigned int size)
+/*int findInTableEntry(TableEntry* const symbolTable[], int symbol, unsigned int size)
 {
     for (unsigned int i = 0; i != size ;i++){
         if(symbolTable[i]->type == 'V')
@@ -92,12 +106,14 @@ int findInTableEntry(TableEntry* const symbolTable[], int symbol, unsigned int s
                 return 1;
     }
     return 0;
-}
+}*/
 
 void parseCodeStr(char codeStr[])
 {
     char *next_token = NULL;
     char *tokenPtr;
+    char copyCodeInLet[CODE_STR_SIZE];
+    char postfix[CODE_STR_SIZE];
     tokenPtr = strtok_s(codeStr, " ", &next_token);
 
     symbolTable[counterSymbolTable] = (TableEntry*) malloc(sizeof(TableEntry));
@@ -112,7 +128,7 @@ void parseCodeStr(char codeStr[])
             break;
         else if(strcmp(tokenPtr, "input") == 0){
             tokenPtr = strtok_s(NULL, " ", &next_token);
-            if(findInTableEntry(symbolTable, atoi(tokenPtr) ,counterSymbolTable) == 0){
+            if(getLocationInTableEntry(symbolTable, tokenPtr[0] ,counterSymbolTable, 'V') == 0){
                 symbolTable[counterSymbolTable] = (TableEntry*) malloc(sizeof(TableEntry));
                 symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
                 symbolTable[counterSymbolTable]->type = 'V';
@@ -130,7 +146,7 @@ void parseCodeStr(char codeStr[])
         else if(strcmp(tokenPtr, "if") == 0){
             tokenPtr = strtok_s(NULL, " ", &next_token);
             //Var in if
-            if (findInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable) == 0) {
+            if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
                 symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
                 symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
                 symbolTable[counterSymbolTable]->type = 'V';
@@ -147,7 +163,7 @@ void parseCodeStr(char codeStr[])
                 instrCounter++;
                 //check second var in if
                 tokenPtr = strtok_s(NULL, " ", &next_token);
-                if (findInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable) == 0) {
+                if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
                     symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
                     symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
                     symbolTable[counterSymbolTable]->type = 'V';
@@ -174,6 +190,58 @@ void parseCodeStr(char codeStr[])
 
             }
             break;
+        }
+
+        else if(strcmp(tokenPtr, "let") == 0){
+            tokenPtr = strtok_s(NULL, " ", &next_token);
+            if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
+                symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
+                symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
+                symbolTable[counterSymbolTable]->type = 'V';
+                symbolTable[counterSymbolTable]->location = dataCounter;
+
+                counterSymbolTable++;
+                dataCounter--;
+            }
+            // ==
+            tokenPtr = strtok_s(NULL, " ", &next_token);
+            //copy math express
+            strcpy(copyCodeInLet, tokenPtr);
+
+            tokenPtr = strtok_s(NULL, " ", &next_token);
+            while (tokenPtr != NULL){
+                if(strIsDigit(tokenPtr)){
+                    if (getLocationInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable, 'C') == 0) {
+                        symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
+                        symbolTable[counterSymbolTable]->symbol = atoi(tokenPtr);
+                        symbolTable[counterSymbolTable]->type = 'C';
+                        symbolTable[counterSymbolTable]->location = dataCounter;
+
+                        counterSymbolTable++;
+                        dataCounter--;
+                    }
+                }
+                else{
+                    if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
+                        symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
+                        symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
+                        symbolTable[counterSymbolTable]->type = 'V';
+                        symbolTable[counterSymbolTable]->location = dataCounter;
+
+                        counterSymbolTable++;
+                        dataCounter--;
+                    }
+                }
+                tokenPtr = strtok_s(NULL, " ", &next_token);
+                tokenPtr = strtok_s(NULL, " ", &next_token);
+            }
+
+            //convertToPostFix(copyCodeInLet, postfix);
+
+            puts("postfix\n");
+            puts(postfix);
+            puts("END\n");
+
         }
 
         tokenPtr = strtok_s(NULL, " ", &next_token);
