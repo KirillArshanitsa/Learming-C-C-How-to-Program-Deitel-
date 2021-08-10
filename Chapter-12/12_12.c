@@ -82,6 +82,7 @@ void convertToPostFix(char infix[], char postfix[])
         }
         ++infixSize;
     }
+	postfix[postfixSize] = '\0';
 }
 
 int precendence(char operator1, char operator2)

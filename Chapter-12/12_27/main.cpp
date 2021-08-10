@@ -2,30 +2,18 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-//#include "12_12.cpp"
+#include "toPostfix.cpp"
+//#include "structs.h"
 
-#define SRC_FILE_NAME_SIZE 100
-#define CODE_STR_SIZE 56
-#define TABLE_ENTRY_COUNT 100
-
-struct tableEntry
-{
-    int symbol;
-    char type;
-    int location;
-};
-
-typedef tableEntry TableEntry;
 
 void readSrcFile(const char[]);
 void parseCodeStr(char[]);
-//int findInTableEntry(const TableEntry* symbolTable[], int, unsigned int);
 void printSMLCode(const int[], unsigned int);
 void printSymbolTable(TableEntry*[], unsigned int);
 int getLocationInTableEntry(TableEntry* const [], int, unsigned int, char);
 void printFlags(int[]);
 int strIsDigit(const char[]);
-
+void insertInSymbolTable(char, int);
 
 unsigned int instrCounter;
 unsigned int dataCounter = TABLE_ENTRY_COUNT - 1;
@@ -34,6 +22,7 @@ int codeSML[TABLE_ENTRY_COUNT];
 unsigned int sizeOfCodeSML;
 unsigned int counterSymbolTable;
 int flags[TABLE_ENTRY_COUNT];
+
 
 
 int main(void)
@@ -46,11 +35,24 @@ int main(void)
     printSMLCode(codeSML, sizeOfCodeSML);
     puts("");
     printSymbolTable(symbolTable, counterSymbolTable);
+
     puts("");
     printFlags(flags);
+    puts("");
+    printf("sizeOfCodeSML = %u, dataCounter = %u, instrCounter = %u", sizeOfCodeSML, dataCounter, instrCounter);
     return 0;
 }
 
+void insertInSymbolTable(char type, int symbol){
+    symbolTable[counterSymbolTable] = (TableEntry*) malloc(sizeof(TableEntry));
+    symbolTable[counterSymbolTable]->symbol = symbol;
+    symbolTable[counterSymbolTable]->type = type;
+    if(type == 'L')
+        symbolTable[counterSymbolTable]->location = instrCounter;
+    else
+        symbolTable[counterSymbolTable]->location = dataCounter;
+    counterSymbolTable++;
+}
 
 int strIsDigit(const char string[]){
     for (int i = 0;string[i] != '\0' ;i++){
@@ -83,10 +85,10 @@ void printSymbolTable(TableEntry* symbolTable[], unsigned int size)
     puts("Print symbolTable:");
     for (unsigned int i = 0; i != size; i++){
         if(symbolTable[i]->type =='V'){
-            printf("%c %c %d\n", symbolTable[i]->symbol, symbolTable[i]->type, symbolTable[i]->location);
+            printf("'%-c' %c  %02d\n", symbolTable[i]->symbol, symbolTable[i]->type, symbolTable[i]->location);
         }
         else {
-            printf("%d %c %d\n", symbolTable[i]->symbol, symbolTable[i]->type, symbolTable[i]->location);
+            printf("%-2d  %c  %02d\n", symbolTable[i]->symbol, symbolTable[i]->type, symbolTable[i]->location);
         }
     }
 }
@@ -95,18 +97,9 @@ void printSMLCode(const int codeSML[], unsigned int sizeOfCodeSML)
 {
     puts("Print SML code:");
     for (unsigned int i = 0 ; i != sizeOfCodeSML; i++)
-        printf("%+d\n",codeSML[i]);
+        printf("%02d  %+d\n",i, codeSML[i]);
 }
 
-/*int findInTableEntry(TableEntry* const symbolTable[], int symbol, unsigned int size)
-{
-    for (unsigned int i = 0; i != size ;i++){
-        if(symbolTable[i]->type == 'V')
-            if(symbolTable[i]->symbol == symbol)
-                return 1;
-    }
-    return 0;
-}*/
 
 void parseCodeStr(char codeStr[])
 {
@@ -114,30 +107,20 @@ void parseCodeStr(char codeStr[])
     char *tokenPtr;
     char copyCodeInLet[CODE_STR_SIZE];
     char postfix[CODE_STR_SIZE];
-    tokenPtr = strtok_s(codeStr, " ", &next_token);
 
-    symbolTable[counterSymbolTable] = (TableEntry*) malloc(sizeof(TableEntry));
-    symbolTable[counterSymbolTable]->symbol = atoi(tokenPtr);
-    symbolTable[counterSymbolTable]->type = 'L';
-    symbolTable[counterSymbolTable]->location = instrCounter;
-    counterSymbolTable++;
+    //printf("Parse - %s\n", codeStr);
+    tokenPtr = strtok_s(codeStr, " ", &next_token);
+    insertInSymbolTable('L', atoi(tokenPtr));
     
     while (tokenPtr != NULL){
-        //printf("%s\n", tokenPtr);
         if(strcmp(tokenPtr, "rem") == 0)
             break;
         else if(strcmp(tokenPtr, "input") == 0){
             tokenPtr = strtok_s(NULL, " ", &next_token);
             if(getLocationInTableEntry(symbolTable, tokenPtr[0] ,counterSymbolTable, 'V') == 0){
-                symbolTable[counterSymbolTable] = (TableEntry*) malloc(sizeof(TableEntry));
-                symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
-                symbolTable[counterSymbolTable]->type = 'V';
-                symbolTable[counterSymbolTable]->location = dataCounter;
-                counterSymbolTable++;
-
+                insertInSymbolTable('V',  tokenPtr[0]);
                 codeSML[sizeOfCodeSML] = 1000 + dataCounter;
                 sizeOfCodeSML++;
-
                 dataCounter--;
             }
             instrCounter++;
@@ -147,29 +130,19 @@ void parseCodeStr(char codeStr[])
             tokenPtr = strtok_s(NULL, " ", &next_token);
             //Var in if
             if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
-                symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
-                symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
-                symbolTable[counterSymbolTable]->type = 'V';
-                symbolTable[counterSymbolTable]->location = dataCounter;
-
-                counterSymbolTable++;
+                insertInSymbolTable('V',  tokenPtr[0]);
                 dataCounter--;
             }
             //chek condition in if
             tokenPtr = strtok_s(NULL, " ", &next_token);
             if(strcmp(tokenPtr, "==") == 0){
-                codeSML[sizeOfCodeSML] = 2000 + dataCounter + 1;// +1
+                codeSML[sizeOfCodeSML] = 2000 + dataCounter + 1;
                 sizeOfCodeSML++;
                 instrCounter++;
                 //check second var in if
                 tokenPtr = strtok_s(NULL, " ", &next_token);
                 if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
-                    symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
-                    symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
-                    symbolTable[counterSymbolTable]->type = 'V';
-                    symbolTable[counterSymbolTable]->location = dataCounter;
-
-                    counterSymbolTable++;
+                    insertInSymbolTable('V',  tokenPtr[0]);
                     dataCounter--;
                 }
                 codeSML[sizeOfCodeSML] = 3100 + getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V');
@@ -195,57 +168,63 @@ void parseCodeStr(char codeStr[])
         else if(strcmp(tokenPtr, "let") == 0){
             tokenPtr = strtok_s(NULL, " ", &next_token);
             if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
-                symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
-                symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
-                symbolTable[counterSymbolTable]->type = 'V';
-                symbolTable[counterSymbolTable]->location = dataCounter;
-
-                counterSymbolTable++;
+                insertInSymbolTable('V',  tokenPtr[0]);
                 dataCounter--;
             }
             // ==
             tokenPtr = strtok_s(NULL, " ", &next_token);
             //copy math express
-            strcpy(copyCodeInLet, tokenPtr);
+            strcpy(copyCodeInLet, next_token);
 
             tokenPtr = strtok_s(NULL, " ", &next_token);
             while (tokenPtr != NULL){
                 if(strIsDigit(tokenPtr)){
                     if (getLocationInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable, 'C') == 0) {
-                        symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
-                        symbolTable[counterSymbolTable]->symbol = atoi(tokenPtr);
-                        symbolTable[counterSymbolTable]->type = 'C';
-                        symbolTable[counterSymbolTable]->location = dataCounter;
-
-                        counterSymbolTable++;
+                        insertInSymbolTable('C',  atoi(tokenPtr));
                         dataCounter--;
                     }
                 }
                 else{
                     if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
-                        symbolTable[counterSymbolTable] = (TableEntry *) malloc(sizeof(TableEntry));
-                        symbolTable[counterSymbolTable]->symbol = tokenPtr[0];
-                        symbolTable[counterSymbolTable]->type = 'V';
-                        symbolTable[counterSymbolTable]->location = dataCounter;
-
-                        counterSymbolTable++;
+                        insertInSymbolTable('V',  tokenPtr[0]);
                         dataCounter--;
                     }
                 }
                 tokenPtr = strtok_s(NULL, " ", &next_token);
                 tokenPtr = strtok_s(NULL, " ", &next_token);
             }
+            //convert to postfix
+            convertToPostFix(copyCodeInLet, postfix);
+            evaluatePostfixExpression(postfix);
 
-            //convertToPostFix(copyCodeInLet, postfix);
-
-            puts("postfix\n");
-            puts(postfix);
-            puts("END\n");
-
+        }
+        else if(strcmp(tokenPtr, "print") == 0){
+            //get var for print
+            tokenPtr = strtok_s(NULL, " ", &next_token);
+            if(getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V'))
+                codeSML[sizeOfCodeSML] = 1100 + getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V');
+            else
+                codeSML[sizeOfCodeSML] = 1100 + getLocationInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable, 'C');
+            sizeOfCodeSML++;
+            instrCounter++;
+        }
+        else if(strcmp(tokenPtr, "goto") == 0){
+            //get cell for goto
+            tokenPtr = strtok_s(NULL, " ", &next_token);
+            codeSML[sizeOfCodeSML]  = 4000 + getLocationInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable, 'L');
+            sizeOfCodeSML++;
+            instrCounter++;
+        }
+        else if(strcmp(tokenPtr, "end") == 0){
+            //99 to end
+            codeSML[sizeOfCodeSML] = 4300;
+            sizeOfCodeSML++;
+            instrCounter++;
         }
 
         tokenPtr = strtok_s(NULL, " ", &next_token);
     }
+
 
 }
 
@@ -263,9 +242,7 @@ void readSrcFile(const char fileName[])
         while(!feof(cfPtr)){
             if (symbol == '\n'){
                 codeStr[i] = '\0';
-                //printf("%s\n", codeStr);
                 parseCodeStr(codeStr);
-
                 codeStr[0] = '\0';
                 i = 0;
             }
@@ -274,10 +251,16 @@ void readSrcFile(const char fileName[])
                 i++;
             }
             fscanf_s(cfPtr, "%c", &symbol, 1);
+            if(feof(cfPtr)){
+                codeStr[i] = '\0';
+                parseCodeStr(codeStr);
+            }
         }
         fclose(cfPtr);
+
     }
     else{
         printf( "The file '%s' was not opened\n", fileName);
     }
+
 }
