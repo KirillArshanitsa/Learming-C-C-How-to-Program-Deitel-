@@ -68,15 +68,15 @@ void runCommands(int memory[], const unsigned int final) {
 			}
 			break;
 		case 40:
-			instructionCounter = operand;
+			instructionCounter = operand - 1;
 			break;
 		case 41:
 			if (accumulator < 0)
-				instructionCounter = operand;
+				instructionCounter = operand - 1;
 			break;
 		case 42:
 			if (accumulator == 0)
-				instructionCounter = operand;
+				instructionCounter = operand - 1;
 			break;
 		case 43:
 			return;
