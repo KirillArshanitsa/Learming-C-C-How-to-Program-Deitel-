@@ -5,6 +5,9 @@
 #include "toPostfix.cpp"
 //#include "structs.h"
 
+//TODO Bug in compiler - load type C in Simpletron memory
+#include "simpletron.cpp"
+extern int memory[];
 
 void readSrcFile(const char[]);
 void parseCodeStr(char[]);
@@ -14,6 +17,8 @@ int getLocationInTableEntry(TableEntry* const [], int, unsigned int, char);
 void printFlags(int[]);
 int strIsDigit(const char[]);
 void insertInSymbolTable(char, int);
+void fixEmptyLink(void);
+void saveSmlCodeToFile(void);
 
 unsigned int instrCounter;
 unsigned int dataCounter = TABLE_ENTRY_COUNT - 1;
@@ -31,16 +36,53 @@ int main(void)
         flags[i] = -1;
 
     char fileName[SRC_FILE_NAME_SIZE] = "Simple.txt";
+    //First compiler pass
     readSrcFile(fileName);
-    printSMLCode(codeSML, sizeOfCodeSML);
+
+/*    printSMLCode(codeSML, sizeOfCodeSML);
     puts("");
     printSymbolTable(symbolTable, counterSymbolTable);
-
     puts("");
     printFlags(flags);
     puts("");
-    printf("sizeOfCodeSML = %u, dataCounter = %u, instrCounter = %u", sizeOfCodeSML, dataCounter, instrCounter);
+    puts("Print finish code");*/
+
+    //Second compiler pass
+    fixEmptyLink();
+    printSMLCode(codeSML, sizeOfCodeSML);
+    saveSmlCodeToFile();
+
+
+    puts("Run SML:");
+    runCommands(memory, loadCommands(memory));
     return 0;
+}
+
+
+void saveSmlCodeToFile(void)
+{
+    FILE *cfPtr;
+    errno_t err;
+
+
+    err = fopen_s(&cfPtr, SML_CODE_FILE_NAME, "w");
+    if( err == 0 ){
+        for(int i = 0; i < sizeOfCodeSML;i++)
+            fprintf(cfPtr,"%+d\n", codeSML[i]);
+        fclose(cfPtr);
+    }
+    else{
+        printf( "The file '%s' was not opened\n", SML_CODE_FILE_NAME);
+    }
+}
+
+void fixEmptyLink(void)
+{
+    for(int i = 0; i < TABLE_ENTRY_COUNT; i++){
+        if(flags[i] != -1){
+            codeSML[i] = codeSML[i] + getLocationInTableEntry(symbolTable, flags[i], counterSymbolTable, 'L');
+        }
+    }
 }
 
 void insertInSymbolTable(char type, int symbol){
@@ -49,8 +91,12 @@ void insertInSymbolTable(char type, int symbol){
     symbolTable[counterSymbolTable]->type = type;
     if(type == 'L')
         symbolTable[counterSymbolTable]->location = instrCounter;
-    else
+    else{
         symbolTable[counterSymbolTable]->location = dataCounter;
+        //TODO Bug in compiler - load type C in Simpletron memory
+        if(type == 'C')
+            memory[dataCounter] = symbol;
+    }
     counterSymbolTable++;
 }
 
@@ -66,7 +112,7 @@ void printFlags(int flags[])
 {
     puts("Print flags:");
     for(unsigned int i = 0 ; i != TABLE_ENTRY_COUNT;i++)
-        printf("%d\n", flags[i]);
+        printf("%02d  %d\n",i, flags[i]);
 }
 
 int getLocationInTableEntry(TableEntry* const[], int symbol, unsigned int size, char type)
@@ -108,7 +154,6 @@ void parseCodeStr(char codeStr[])
     char copyCodeInLet[CODE_STR_SIZE];
     char postfix[CODE_STR_SIZE];
 
-    //printf("Parse - %s\n", codeStr);
     tokenPtr = strtok_s(codeStr, " ", &next_token);
     insertInSymbolTable('L', atoi(tokenPtr));
     
@@ -262,5 +307,4 @@ void readSrcFile(const char fileName[])
     else{
         printf( "The file '%s' was not opened\n", fileName);
     }
-
 }

@@ -8,11 +8,13 @@
 #define SRC_FILE_NAME_SIZE 100
 #define CODE_STR_SIZE 56
 #define TABLE_ENTRY_COUNT 100
+#define SML_CODE_FILE_NAME "SmlCode.txt"
+#define RESULT_FILE_NAME "ResultCode.txt"
 
 struct tableEntry{
-    int symbol;
+    unsigned int symbol;
     char type;
-    int location;
+    unsigned int location;
 };
 
 typedef tableEntry TableEntry;
