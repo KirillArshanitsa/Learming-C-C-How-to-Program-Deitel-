@@ -1,0 +1,6 @@
+*** Start load commands from file SmlCode.txt***
+*** Finish load commands ***
+***Starting begin your program***
+Enter number:
+20
+210
