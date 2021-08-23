@@ -3,14 +3,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "toPostfix.cpp"
-//#include "structs.h"
 
 //TODO Bug in compiler - load type C in Simpletron memory
 #include "simpletron.cpp"
 extern int memory[];
 
 void readSrcFile(const char[]);
-void parseCodeStr(char[]);
+void parseCodeStr(char[], size_t, char[]);
 void printSMLCode(const int[], unsigned int);
 void printSymbolTable(TableEntry*[], unsigned int);
 int getLocationInTableEntry(TableEntry* const [], int, unsigned int, char);
@@ -101,6 +100,8 @@ void insertInSymbolTable(char type, int symbol){
     counterSymbolTable++;
 }
 
+
+
 int strIsDigit(const char string[]){
     for (int i = 0;string[i] != '\0' ;i++){
         if(isalpha(string[i]))
@@ -148,19 +149,21 @@ void printSMLCode(const int codeSML[], unsigned int sizeOfCodeSML)
 }
 
 
-void parseCodeStr(char codeStr[])
+void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
 {
     char *next_token = NULL;
     char *tokenPtr;
     char copyCodeInLet[CODE_STR_SIZE];
     char postfix[CODE_STR_SIZE];
+    int arraySize = 0;
+    char arrayStrSize[20];
 
     tokenPtr = strtok_s(codeStr, " ", &next_token);
     if(strIsDigit(tokenPtr))
         insertInSymbolTable('L', atoi(tokenPtr));
     else{
-        printf("Error parse - %s", tokenPtr);
-        return;
+        printf("Error parse - %s\nIn %u string %s. First word is not a digit.\n", tokenPtr, strNum, originalCodeStr);
+        exit(EXIT_FAILURE);
     }
 
     insertInSymbolTable('L', atoi(tokenPtr));
@@ -222,8 +225,8 @@ void parseCodeStr(char codeStr[])
                     }
                 }
                 else{
-                    printf("Error in parse string \n");
-                    break;
+                    printf("Error parse - %s\nIn %u string - %s\n", tokenPtr, strNum, originalCodeStr);
+                    exit(EXIT_FAILURE);;
                 }
                 tokenPtr = strtok_s(NULL, " ", &next_token);
             }
@@ -295,12 +298,45 @@ void parseCodeStr(char codeStr[])
             instrCounter++;
             tokenPtr = strtok_s(NULL, " ", &next_token);
         }
+        //parse varName[int]
+/*        else if((isalpha(tokenPtr[0]) != 0) && (strlen(tokenPtr) > 1)){
+            if((tokenPtr[1] == '[') && (tokenPtr[strlen(tokenPtr) - 1] =']')){
+                //new array
+                if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
+                    insertInSymbolTable('V',  tokenPtr[0]);
+                    dataCounter--;
+
+                    arraySize = 0;
+                    for(int e = 2; e < strlen(tokenPtr) - 1; e++){
+                        if(isdigit(tokenPtr[e]))
+                            arraySize++;
+                        else{
+                            printf("Error parse - %s\nIn %u string %s. Not exist array size, get - %c\n", tokenPtr, strNum, originalCodeStr, tokenPtr[2]);
+                            exit(EXIT_FAILURE);
+                        }
+                    }
+                    strncpy(&tokenPtr[2], arrayStrSize, arraySize);
+                    arraySize = atoi(arrayStrSize);
+                    while(arraySize--){
+
+                    }
+                }
+                //get elem from array
+                else{
+
+                }
+            }
+            else{
+                printf("Error parse - %s\nIn %u string %s. This is not a array.\n", tokenPtr, strNum, originalCodeStr);
+                exit(EXIT_FAILURE);
+            }
+
+        }*/
 
         else{
-            printf("Error parse - %s", tokenPtr);
+            printf("Error parse - %s\nIn %u string - %s\n", tokenPtr, strNum, originalCodeStr);
+            exit(EXIT_FAILURE);
         }
-
-        //tokenPtr = strtok_s(NULL, " ", &next_token);
     }
 
 
@@ -311,30 +347,35 @@ void readSrcFile(const char fileName[])
     FILE *cfPtr;
     errno_t err;
     char codeStr[CODE_STR_SIZE];
+    char originalCodeStr[CODE_STR_SIZE];
     char symbol;
-    int i = 0;
-
+    size_t i = 0;
+    size_t strNum = 0;
 
     err = fopen_s(&cfPtr, fileName, "r");
     if( err == 0 ){
         fscanf_s(cfPtr, "%c", &symbol, 1);
         while(!feof(cfPtr)){
             if (symbol == '\n'){
+                strNum++;
                 codeStr[i] = '\0';
-                printf("parse %s\n", codeStr);
-                parseCodeStr(codeStr);
+                originalCodeStr[i] = '\0';
+                parseCodeStr(codeStr, strNum, originalCodeStr);
+                originalCodeStr[0] = '\0';
                 codeStr[0] = '\0';
                 i = 0;
             }
             else{
                 codeStr[i] = tolower(symbol);
+                originalCodeStr[i] = symbol;
                 i++;
             }
             fscanf_s(cfPtr, "%c", &symbol, 1);
             if(feof(cfPtr)){
+                strNum++;
                 codeStr[i] = '\0';
-                printf("parse %s\n", codeStr);
-                parseCodeStr(codeStr);
+                originalCodeStr[i] = '\0';
+                parseCodeStr(codeStr, strNum, originalCodeStr);
             }
         }
         fclose(cfPtr);

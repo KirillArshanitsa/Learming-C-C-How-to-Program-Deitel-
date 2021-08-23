@@ -1,3 +1,4 @@
+1 l[6]
 5 rem sum 1 to x
 10 input x
 15 rem check y == x

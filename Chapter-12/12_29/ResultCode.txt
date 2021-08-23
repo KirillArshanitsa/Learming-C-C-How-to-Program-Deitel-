@@ -2,5 +2,5 @@
 *** Finish load commands ***
 ***Starting begin your program***
 Enter number:
-20
-210
+200
+20100
