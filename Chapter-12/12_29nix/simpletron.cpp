@@ -20,6 +20,7 @@ void runCommands( int[], unsigned int);
 
 
 void runCommands(int memory[], unsigned int final) {
+    printf("final = %u\n", final);
     int tmpNum;
     for (instructionCounter = 0; instructionCounter < final; instructionCounter++) {
         instructionRegister = memory[instructionCounter];
@@ -108,7 +109,7 @@ unsigned int loadCommands(int memory[]) {
         cfPtr = fopen(SML_CODE_FILE_NAME, "r");
         if(cfPtr != NULL ){
             while(!feof(cfPtr)){
-                fscanf(cfPtr, "%s", &tmpStrSMLCode, CODE_STR_SIZE - 1);
+                fscanf(cfPtr, "%s", tmpStrSMLCode, CODE_STR_SIZE - 1);
                 memory[count] = atoi(tmpStrSMLCode);
                 count++;
             }

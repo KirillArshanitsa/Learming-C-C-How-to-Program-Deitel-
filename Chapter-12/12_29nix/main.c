@@ -39,19 +39,18 @@ int main(void)
     //First compiler pass
     readSrcFile(fileName);
 
-/*    printSMLCode(codeSML, sizeOfCodeSML);
-    puts("");
-    printSymbolTable(symbolTable, counterSymbolTable);
-    puts("");
-    printFlags(flags);
-    puts("");
-    puts("Print finish code");*/
+//    printSMLCode(codeSML, sizeOfCodeSML);
+//    puts("");
+//    printSymbolTable(symbolTable, counterSymbolTable);
+//    puts("");
+//    printFlags(flags);
+//    puts("");
+//    puts("Print finish code");
 
     //Second compiler pass
     fixEmptyLink();
     printSMLCode(codeSML, sizeOfCodeSML);
     saveSmlCodeToFile();
-
 
     puts("Run SML:");
     runCommands(memory, loadCommands(memory));
@@ -63,7 +62,6 @@ void saveSmlCodeToFile(void)
 {
     FILE *cfPtr = NULL;
     errno_t err;
-
 
     cfPtr = fopen( SML_CODE_FILE_NAME, "w");
     if( cfPtr != NULL ){
@@ -103,7 +101,7 @@ void insertInSymbolTable(char type, int symbol){
 
 
 int strIsDigit(const char string[]){
-    for (int i = 0;string[i] != '\0' ;i++){
+    for (int i = 0; string[i] != '\0' ;i++){
         if(isalpha(string[i]))
             return 0;
     }
@@ -151,12 +149,9 @@ void printSMLCode(const int codeSML[], unsigned int sizeOfCodeSML)
 
 void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
 {
-    //char *next_token = NULL;
     char *tokenPtr;
     char copyCodeInLet[CODE_STR_SIZE];
     char postfix[CODE_STR_SIZE];
-    int arraySize = 0;
-    char arrayStrSize[20];
 
     tokenPtr = strtok(codeStr, " ");
     if(strIsDigit(tokenPtr))
@@ -165,8 +160,6 @@ void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
         printf("Error parse - %s\nIn %u string %s. First word is not a digit.\n", tokenPtr, strNum, originalCodeStr);
         exit(EXIT_FAILURE);
     }
-
-    insertInSymbolTable('L', atoi(tokenPtr));
 
     tokenPtr = strtok(NULL, " ");
     while (tokenPtr != NULL){
@@ -189,7 +182,7 @@ void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
             break;
         }
         else if(strcmp(tokenPtr, "if") == 0){
-            tokenPtr = strtok(NULL, " ");;
+            tokenPtr = strtok(NULL, " ");
             while(tokenPtr != NULL){
                 //Var in if
                 if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
@@ -197,7 +190,7 @@ void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
                     dataCounter--;
                 }
                 //chek condition in if
-                tokenPtr = strtok(NULL, " ");;
+                tokenPtr = strtok(NULL, " ");
                 if(strcmp(tokenPtr, "==") == 0){
                     codeSML[sizeOfCodeSML] = 2000 + dataCounter + 1;
                     sizeOfCodeSML++;
@@ -212,8 +205,8 @@ void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
                     sizeOfCodeSML++;
                     instrCounter++;
                     // goto ***
-                    tokenPtr = strtok(NULL, " ");;
-                    tokenPtr = strtok(NULL, " ");;
+                    tokenPtr = strtok(NULL, " ");
+                    tokenPtr = strtok(NULL, " ");
 
                     if (getLocationInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable, 'L'))
                         ;
@@ -226,24 +219,23 @@ void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
                 }
                 else{
                     printf("Error parse - %s\nIn %u string - %s\n", tokenPtr, strNum, originalCodeStr);
-                    exit(EXIT_FAILURE);;
+                    exit(EXIT_FAILURE);
                 }
-                tokenPtr = strtok(NULL, " ");;
+                tokenPtr = strtok(NULL, " ");
             }
         }
 
         else if(strcmp(tokenPtr, "let") == 0){
-            tokenPtr = strtok(NULL, " ");;
+            tokenPtr = strtok(NULL, " ");
             if (getLocationInTableEntry(symbolTable, tokenPtr[0], counterSymbolTable, 'V') == 0) {
                 insertInSymbolTable('V',  tokenPtr[0]);
                 dataCounter--;
             }
-            // ==
-            tokenPtr = strtok(NULL, " ");;
+            tokenPtr = strtok(NULL, " ");
             //copy math express
-            strcpy(copyCodeInLet, tokenPtr);
+            strcpy(copyCodeInLet, tokenPtr + 2); //+2 char after =
 
-            tokenPtr = strtok(NULL, " ");;
+            tokenPtr = strtok(NULL, " ");
             while (tokenPtr != NULL){
                 if(strIsDigit(tokenPtr)){
                     if (getLocationInTableEntry(symbolTable, atoi(tokenPtr), counterSymbolTable, 'C') == 0) {
@@ -257,13 +249,12 @@ void parseCodeStr(char codeStr[], size_t strNum, char originalCodeStr[])
                         dataCounter--;
                     }
                 }
-                tokenPtr = strtok(NULL, " ");;
-                tokenPtr = strtok(NULL, " ");;
+                tokenPtr = strtok(NULL, " ");
+                tokenPtr = strtok(NULL, " ");
             }
             //convert to postfix
             convertToPostFix(copyCodeInLet, postfix);
             evaluatePostfixExpression(postfix);
-
         }
         else if(strcmp(tokenPtr, "print") == 0){
             //get var for print
@@ -353,7 +344,7 @@ void readSrcFile(const char fileName[])
 
     cfPtr = fopen(fileName, "r");
     if( cfPtr != NULL ){
-        fscanf(cfPtr, "%c", symbol);
+        fscanf(cfPtr, "%c", &symbol);
         while(!feof(cfPtr)){
             if (symbol == '\n'){
                 strNum++;
@@ -369,7 +360,7 @@ void readSrcFile(const char fileName[])
                 originalCodeStr[i] = symbol;
                 i++;
             }
-            fscanf(cfPtr, "%c", symbol);
+            fscanf(cfPtr, "%c", &symbol);
             if(feof(cfPtr)){
                 strNum++;
                 codeStr[i] = '\0';
