@@ -1,14 +1,15 @@
-#include "DoubleSubscriptedArray.h"
-
+#include "String.h"
 #include <iostream>
-using namespace std;
+using std::cout;
+using std::endl;
 
 int main()
 {
-    DoubleSubscriptedArray myDoubleArray(4,5);
-    //cout << myDoubleArray;
-    myDoubleArray(3,3) = 1;
-    //cout << myDoubleArray(1,2) << endl;
-    cout << myDoubleArray;
-    return 0;
+	String str1("2");
+	String str2("_1");
+
+	cout <<"\nResult + : "<< endl;
+	cout << str1 + str2 << endl;
+
+	return 0;
 }
