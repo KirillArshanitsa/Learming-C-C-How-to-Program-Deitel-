@@ -5,8 +5,17 @@ using namespace::std;
 
 int main()
 {
-	cout << 18 / 4 << endl;
-	RationalNumber r1(3, 38);
-	r1.print();
+	//cout << 38 % 3 << endl;
+	//cout << 2 % 3 << endl;
+	//RationalNumber r1(18, 30);
+	RationalNumber r1(5, 7);
+	RationalNumber r2(5, 7);
+	//r1 * r2;
+	//r1.print();
+	bool a = r1 >= r2;
+	//bool b = r1 < r2;
+
+	cout << a << endl;
+	//cout << b << endl;
 	return 0;
 }
