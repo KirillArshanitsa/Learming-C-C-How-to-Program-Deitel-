@@ -24,7 +24,7 @@ public:
 		return another >= (*this);
 	}
 
-//private:
+private:
 	int numerator;
 	int denominator;
 };
